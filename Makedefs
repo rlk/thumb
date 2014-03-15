@@ -19,7 +19,7 @@ ifdef ISMINGW
 else
 	CC      = cc
 	CXX     = c++ -fno-rtti
-	DYNAMIC = true
+#	DYNAMIC = true
 endif
 
 CFLAGS += -Wall -g
@@ -70,6 +70,7 @@ ifdef DYNAMIC
 else
 	LIBS += $(firstword $(wildcard $(addsuffix libfreetype.a, $(LIBPATH))) -lfreetype)
 	LIBS += $(firstword $(wildcard $(addsuffix libtiff.a,     $(LIBPATH))) -ltiff)
+	LIBS += $(firstword $(wildcard $(addsuffix libjpeg.a,     $(LIBPATH))) -ljpeg)
 	LIBS += $(firstword $(wildcard $(addsuffix libmxml.a,     $(LIBPATH))) -lmxml)
 	LIBS += $(firstword $(wildcard $(addsuffix libode.a,      $(LIBPATH))) -lode)
 	LIBS += $(firstword $(wildcard $(addsuffix libpng.a,      $(LIBPATH))) -lpng)
