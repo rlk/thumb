@@ -26,90 +26,63 @@
 
 //-----------------------------------------------------------------------------
 
-namespace dpy
+dpy::oculus_api::oculus_api()
 {
-    class oculus_api
+    OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
+}
+
+dpy::oculus_api::~oculus_api()
+{
+    OVR::System::Destroy();
+}
+
+dpy::oculus_dev::oculus_dev() : api()
+{
+    // Set default HMD info for a 7" OVR DK1 in case OVR fails.
+
+    Info.DesktopX               =  0;
+    Info.DesktopY               =  0;
+    Info.HResolution            =  1280;
+    Info.VResolution            =  800;
+
+    Info.HScreenSize            =  0.14976f;
+    Info.VScreenSize            =  0.09350f;
+    Info.InterpupillaryDistance =  0.0604f;
+    Info.LensSeparationDistance =  0.0635f;
+    Info.EyeToScreenDistance    =  0.0410f;
+    Info.VScreenCenter          =  Info.VScreenSize * 0.5f;
+
+    Info.DistortionK[0]         =  1.00f;
+    Info.DistortionK[1]         =  0.22f;
+    Info.DistortionK[2]         =  0.24f;
+    Info.DistortionK[3]         =  0.00f;
+
+    Info.ChromaAbCorrection[0]  =  0.996f;
+    Info.ChromaAbCorrection[1]  = -0.004f;
+    Info.ChromaAbCorrection[2]  =  1.014f;
+    Info.ChromaAbCorrection[3]  =  0.000f;
+
+    // Initialize the HMD and sensor.
+
+    if ((pManager = *OVR::DeviceManager::Create()))
     {
-    public:
-
-        oculus_api()
+        if ((pHMD = *pManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice()))
         {
-            OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-        }
-       ~oculus_api()
-        {
-            OVR::System::Destroy();
-        }
-    };
-
-    class oculus_dev
-    {
-    public:
-
-        oculus_api api;
-
-        OVR::Ptr<OVR::DeviceManager> pManager;
-        OVR::Ptr<OVR::HMDDevice>     pHMD;
-        OVR::Ptr<OVR::SensorDevice>  pSensor;
-
-        OVR::SensorFusion Fusion;
-        OVR::HMDInfo      Info;
-
-        oculus_dev() : api()
-        {
-            // Set default HMD info for a 7" OVR DK1 in case OVR fails.
-
-            Info.DesktopX               =  0;
-            Info.DesktopY               =  0;
-            Info.HResolution            =  1280;
-            Info.VResolution            =  800;
-
-            Info.HScreenSize            =  0.14976f;
-            Info.VScreenSize            =  0.09350f;
-            Info.InterpupillaryDistance =  0.0604f;
-            Info.LensSeparationDistance =  0.0635f;
-            Info.EyeToScreenDistance    =  0.0410f;
-            Info.VScreenCenter          =  Info.VScreenSize * 0.5f;
-
-            Info.DistortionK[0]         =  1.00f;
-            Info.DistortionK[1]         =  0.22f;
-            Info.DistortionK[2]         =  0.24f;
-            Info.DistortionK[3]         =  0.00f;
-
-            Info.ChromaAbCorrection[0]  =  0.996f;
-            Info.ChromaAbCorrection[1]  = -0.004f;
-            Info.ChromaAbCorrection[2]  =  1.014f;
-            Info.ChromaAbCorrection[3]  =  0.000f;
-
-            // Initialize the HMD and sensor.
-
-            if ((pManager = *OVR::DeviceManager::Create()))
+            if ((pSensor = *pHMD->GetSensor()))
             {
-                if ((pHMD = *pManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice()))
-                {
-                    if ((pSensor = *pHMD->GetSensor()))
-                    {
-                        Fusion.AttachToSensor(pSensor);
-                    }
-                    pHMD->GetDeviceInfo(&Info);
-                }
+                Fusion.AttachToSensor(pSensor);
             }
+            pHMD->GetDeviceInfo(&Info);
         }
-       ~oculus_dev()
-        {
-            Fusion.AttachToSensor(0);
+    }
+}
+dpy::oculus_dev::~oculus_dev()
+{
+    Fusion.AttachToSensor(0);
 
-            pSensor  = 0;
-            pHMD     = 0;
-            pManager = 0;
-        }
-
-    };
-
-    // Statically-defined device that will RAII the Oculus API and HMD into
-    // a functional state and clean them it upon exit.
-
-    static oculus_dev device;
+    pSensor  = 0;
+    pHMD     = 0;
+    pManager = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -136,6 +109,8 @@ static mat4 getMatrix4f(const OVR::Matrix4f& src)
 
 //-----------------------------------------------------------------------------
 
+dpy::oculus_dev *dpy::oculus::device = 0;
+
 dpy::oculus::oculus(app::node p) :
     display(p), frust(0), chani(0), program(0)
 {
@@ -143,17 +118,20 @@ dpy::oculus::oculus(app::node p) :
 
     chani = p.get_i("channel");
 
+    if (device == 0)
+        device = new oculus_dev();
+
     // Apply the Oculus projections to the frustums.
 
     if (OVR::System::IsInitialized())
     {
         mat4 P;
 
-        Stereo.SetHMDInfo(device.Info);
+        Stereo.SetHMDInfo(device->Info);
         Stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
         Stereo.SetStereoMode(Stereo_LeftRight_Multipass);
-        Stereo.SetFullViewport(Viewport(0, 0, device.Info.HResolution,
-                                              device.Info.VResolution));
+        Stereo.SetFullViewport(Viewport(0, 0, device->Info.HResolution,
+                                              device->Info.VResolution));
         if (chani)
             P = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).Projection);
         else
@@ -201,12 +179,12 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 
     // Include the Oculus orientation in the tracking matrix.
 
-    if (device.pSensor)
+    if (device->pSensor)
     {
         OVR::Vector3f v;
         float         a;
 
-        device.Fusion.GetOrientation().GetAxisAngle(&v, &a);
+        device->Fusion.GetOrientation().GetAxisAngle(&v, &a);
         T = T * translation(vec3(0, -0.1, 0))
               *    rotation(vec3(double(v.x),
                                  double(v.y),
@@ -329,23 +307,23 @@ bool dpy::oculus::process_start(app::event *E)
     if ((program = ::glob->load_program("dpy/oculus.xml")))
     {
         double scale  = Stereo.GetDistortionScale();
-        double aspect = double(device.Info.HResolution)
-                      / double(device.Info.VResolution) / 2;
+        double aspect = double(device->Info.HResolution)
+                      / double(device->Info.VResolution) / 2;
 
-        double center = 1 - (2 * double(device.Info.LensSeparationDistance))
-                               / double(device.Info.HScreenSize);
+        double center = 1 - (2 * double(device->Info.LensSeparationDistance))
+                               / double(device->Info.HScreenSize);
 
         if (chani) LensCenter = vec2(0.5 - 0.5 * center, 0.5);
         else       LensCenter = vec2(0.5 + 0.5 * center, 0.5);
 
-        DistortionK =        vec4(device.Info.DistortionK[0],
-                                  device.Info.DistortionK[1],
-                                  device.Info.DistortionK[2],
-                                  device.Info.DistortionK[3]);
-        ChromaAbCorrection = vec4(device.Info.ChromaAbCorrection[0],
-                                  device.Info.ChromaAbCorrection[1],
-                                  device.Info.ChromaAbCorrection[2],
-                                  device.Info.ChromaAbCorrection[3]);
+        DistortionK =        vec4(device->Info.DistortionK[0],
+                                  device->Info.DistortionK[1],
+                                  device->Info.DistortionK[2],
+                                  device->Info.DistortionK[3]);
+        ChromaAbCorrection = vec4(device->Info.ChromaAbCorrection[0],
+                                  device->Info.ChromaAbCorrection[1],
+                                  device->Info.ChromaAbCorrection[2],
+                                  device->Info.ChromaAbCorrection[3]);
 
         ScaleOut = vec2(0.5 / scale, 0.5 * aspect / scale);
         ScaleIn =  vec2(2.0,         2.0 / aspect);

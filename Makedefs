@@ -22,7 +22,7 @@ else
 #	DYNAMIC = true
 endif
 
-CFLAGS += -Wall -g
+CFLAGS += -Wall -O2
 
 #------------------------------------------------------------------------------
 # Configure the system libraries.

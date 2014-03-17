@@ -30,6 +30,30 @@ namespace ogl
 
 namespace dpy
 {
+    class oculus_api
+    {
+    public:
+        oculus_api();
+       ~oculus_api();
+    };
+
+    class oculus_dev
+    {
+    public:
+
+        oculus_api api;
+
+        OVR::Ptr<OVR::DeviceManager> pManager;
+        OVR::Ptr<OVR::HMDDevice>     pHMD;
+        OVR::Ptr<OVR::SensorDevice>  pSensor;
+
+        OVR::SensorFusion Fusion;
+        OVR::HMDInfo      Info;
+
+        oculus_dev();
+       ~oculus_dev();
+    };
+
     class oculus : public display
     {
     public:
@@ -57,6 +81,8 @@ namespace dpy
         virtual bool process_event(app::event *);
 
     private:
+
+        static oculus_dev *device;
 
         OVR::Util::Render::StereoConfig Stereo;
 
