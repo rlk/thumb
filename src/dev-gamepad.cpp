@@ -64,24 +64,33 @@ bool dev::gamepad::process_tick(app::event *E)
 {
     const double dt = E->data.tick.dt;
 
-    const double kp =        dt;
-    const double kr = 45.0 * dt;
+    const double kp = dt * 10;
+    const double kr = dt * to_radians(45);
 
-    // const bool bx = (fabs(axis[0]) > 0.1);
-    // const bool by = (fabs(axis[1]) > 0.1);
-    // const bool bz = (fabs(axis[2]) > 0.1);
-    // const bool   br = bx || by || bz;
-
+#if 0
     for (int i = 0; i < naxis; ++i)
         printf("%f ", axis[i]);
     for (int i = 0; i < nbutn; ++i)
         printf("%d ", butn[i]);
     printf("\n");
+#endif
 
-        // ::host->offset_position(mat3(::host->get_orientation()) * dpad * kp);
+    quat q = ::host->get_orientation();
+    mat3 R(q);
 
-    // if (bp) ::view->move(dpad[0] * kp, dpad[1] * kp, dpad[2] * kp);
-    // if (br) ::view->turn(axis[1] * kr, axis[0] * kr, axis[2] * kr);
+    ::host->set_orientation(q * quat(R[1], -axis[3] * kr)
+                              * quat(R[0], -axis[4] * kr));
+
+
+    printf("%f %f %f\n", axis[2], axis[5], (axis[5] - axis[2]) / 2);
+
+    ::host->offset_position(mat4(q) * vec3(axis[0] * kp,
+                                           axis[5] * kp
+                                          -axis[2] * kp,
+                                           axis[1] * kp));
+
+    // ::host->offset_position(mat3(::host->get_orientation()) * dpad * kp);
+
 
     return false;
 }
