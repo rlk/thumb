@@ -16,71 +16,31 @@
 
 #include <etc-vector.hpp>
 #include <app-conf.hpp>
-#include <app-view.hpp>
+#include <app-host.hpp>
 #include <app-event.hpp>
 #include <dev-gamepad.hpp>
 
 //-----------------------------------------------------------------------------
 
-dev::gamepad::gamepad() : button(16, false)
+dev::gamepad::gamepad()
 {
-    // Defaults are arbitrarily chosen to conform to the XBox 360 controller
-
-    gamepad_axis_X = conf->get_i("gamepad_axis_X",  0);
-    gamepad_axis_Y = conf->get_i("gamepad_axis_Y",  1);
-    gamepad_axis_Z = conf->get_i("gamepad_axis_Z",  2);
-    gamepad_axis_T = conf->get_i("gamepad_axis_T",  3);
-
-    gamepad_butn_L = conf->get_i("gamepad_butn_L", 13);
-    gamepad_butn_R = conf->get_i("gamepad_butn_R", 12);
-    gamepad_butn_D = conf->get_i("gamepad_butn_D",  8);
-    gamepad_butn_U = conf->get_i("gamepad_butn_U",  9);
-    gamepad_butn_F = conf->get_i("gamepad_butn_F", 14);
-    gamepad_butn_B = conf->get_i("gamepad_butn_B", 11);
-    gamepad_butn_H = conf->get_i("gamepad_butn_H",  4);
-
-    gamepad_axis_X_min = conf->get_f("gamepad_axis_X_min", -32768.0);
-    gamepad_axis_X_max = conf->get_f("gamepad_axis_X_max",  32767.0);
-    gamepad_axis_Y_min = conf->get_f("gamepad_axis_Y_min", -32768.0);
-    gamepad_axis_Y_max = conf->get_f("gamepad_axis_Y_max",  32767.0);
-    gamepad_axis_Z_min = conf->get_f("gamepad_axis_Z_min", -32768.0);
-    gamepad_axis_Z_max = conf->get_f("gamepad_axis_Z_max",  32767.0);
-    gamepad_axis_T_min = conf->get_f("gamepad_axis_T_min", -32768.0);
-    gamepad_axis_T_max = conf->get_f("gamepad_axis_T_max",  32767.0);
-
-    motion[0] = 0;
-    motion[1] = 0;
-    motion[2] = 0;
-
-    rotate[0] = 0;
-    rotate[1] = 0;
-    rotate[2] = 0;
-    rotate[3] = 0;
+    for (int i = 0; i < naxis; i++) { gamepad_axis[i] = i; axis[i] = 0; }
+    for (int i = 0; i < nbutn; i++) { gamepad_butn[i] = i; butn[i] = 0; }
 }
 
 //-----------------------------------------------------------------------------
 
-double dev::gamepad::calibrate(double val, double min, double max)
+bool dev::gamepad::process_button(app::event *E)
 {
-    return 2.0 * (val - min) / (max - min) - 1.0;
-}
+    const int b = E->data.button.b;
+    const int d = E->data.button.d;
 
-//-----------------------------------------------------------------------------
-
-bool dev::gamepad::process_click(app::event *E)
-{
-    const int b = E->data.click.b;
-    const int d = E->data.click.d;
-
-    const int dd = d ? +1 : -1;
-
-    if      (b == gamepad_butn_L) { motion[0] -= dd; return true; }
-    else if (b == gamepad_butn_R) { motion[0] += dd; return true; }
-    else if (b == gamepad_butn_D) { motion[1] -= dd; return true; }
-    else if (b == gamepad_butn_U) { motion[1] += dd; return true; }
-    else if (b == gamepad_butn_F) { motion[2] -= dd; return true; }
-    else if (b == gamepad_butn_B) { motion[2] += dd; return true; }
-    else if (b == gamepad_butn_H) { ::view->go_home();  return true; }
+    for (int i = 0; i < 16; ++i)
+        if (b == gamepad_butn[i])
+        {
+            butn[i] = d;
+            return true;
+        }
 
     return false;
 }
@@ -88,50 +48,40 @@ bool dev::gamepad::process_click(app::event *E)
 bool dev::gamepad::process_axis(app::event *E)
 {
     const int    a = E->data.axis.a;
-    const double v = E->data.axis.v;
+    const double v = E->data.axis.v / 32768.0;
 
-    if      (a == gamepad_axis_X)
-    {
-        rotate[0] = -calibrate(v, gamepad_axis_X_min, gamepad_axis_X_max);
-        return true;
-    }
-    else if (a == gamepad_axis_Y)
-    {
-        rotate[1] = +calibrate(v, gamepad_axis_Y_min, gamepad_axis_Y_max);
-        return true;
-    }
-    else if (a == gamepad_axis_Z)
-    {
-        rotate[2] = -calibrate(v, gamepad_axis_Z_min, gamepad_axis_Z_max);
-        return true;
-    }
-    else if (a == gamepad_axis_T)
-    {
-        rotate[3] = -calibrate(v, gamepad_axis_T_min, gamepad_axis_T_max);
-        return true;
-    }
+    for (int i = 0; i < 16; ++i)
+        if (a == gamepad_axis[i])
+        {
+            axis[i] = v;
+            return true;
+        }
 
     return false;
 }
 
 bool dev::gamepad::process_tick(app::event *E)
 {
-#if 0
     const double dt = E->data.tick.dt;
 
     const double kp =        dt;
     const double kr = 45.0 * dt;
 
-    const bool   bx = (fabs(rotate[0]) > 0.25);
-    const bool   by = (fabs(rotate[1]) > 0.25);
-    const bool   bz = (fabs(rotate[2]) > 0.25);
+    // const bool bx = (fabs(axis[0]) > 0.1);
+    // const bool by = (fabs(axis[1]) > 0.1);
+    // const bool bz = (fabs(axis[2]) > 0.1);
+    // const bool   br = bx || by || bz;
 
-    const bool   bp = (DOT3(motion, motion) != 0);
-    const bool   br = bx || by || bz;
+    for (int i = 0; i < naxis; ++i)
+        printf("%f ", axis[i]);
+    for (int i = 0; i < nbutn; ++i)
+        printf("%d ", butn[i]);
+    printf("\n");
 
-    if (bp) ::view->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
-    if (br) ::view->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
-#endif
+        // ::host->offset_position(mat3(::host->get_orientation()) * dpad * kp);
+
+    // if (bp) ::view->move(dpad[0] * kp, dpad[1] * kp, dpad[2] * kp);
+    // if (br) ::view->turn(axis[1] * kr, axis[0] * kr, axis[2] * kr);
 
     return false;
 }
@@ -144,9 +94,9 @@ bool dev::gamepad::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_CLICK: R |= process_click(E); break;
-    case E_AXIS:  R |= process_axis(E); break;
-    case E_TICK:  R |= process_tick(E); break;
+    case E_BUTTON: R |= process_button(E); break;
+    case E_AXIS:   R |= process_axis  (E); break;
+    case E_TICK:   R |= process_tick  (E); break;
     }
 
     return R || dev::input::process_event(E);
