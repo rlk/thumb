@@ -16,9 +16,10 @@
 
 //-----------------------------------------------------------------------------
 
-app::view::view()
+app::view::view() :
+    scaling(1),
+    vertical(bool(::conf->get_i("view_lock_vertical", 0)))
 {
-    vertical = bool(::conf->get_i("view_lock_vertical", 0));
     go_home();
 }
 
@@ -63,7 +64,11 @@ void app::view::set_orientation(const quat& q)
 
 mat4 app::view::get_inverse() const
 {
-    return translation(position) * mat4(mat3(orientation)) * tracking;
+    const double s = 1 / scaling;
+    return translation(position)
+         * mat4(mat3(orientation))
+         * scale(vec3(s, s, s))
+         * tracking;
 }
 
 mat4 app::view::get_transform() const
