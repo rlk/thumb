@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <cassert>
+#include <algorithm>
 
 #include <SDL_joystick.h>
 
@@ -22,40 +23,76 @@
 
 //-----------------------------------------------------------------------------
 
-dev::gamepad::gamepad()
+// Default gamepade configuration fits an XBox 360 controller (without roll).
+
+dev::gamepad::gamepad() :
+
+    dead_zone(0.2),
+    filter   (0.9),
+
+    axis_pos_x     (::conf->get_i("gamepad_axis_pos_x",      0)),
+    axis_neg_x     (::conf->get_i("gamepad_axis_neg_x",     -1)),
+    axis_pos_y     (::conf->get_i("gamepad_axis_pos_y",      5)),
+    axis_neg_y     (::conf->get_i("gamepad_axis_neg_y",      2)),
+    axis_pos_z     (::conf->get_i("gamepad_axis_pos_z",      1)),
+    axis_neg_z     (::conf->get_i("gamepad_axis_neg_z",     -1)),
+    axis_pos_yaw   (::conf->get_i("gamepad_axis_pos_yaw",   -1)),
+    axis_neg_yaw   (::conf->get_i("gamepad_axis_neg_yaw",    3)),
+    axis_pos_pitch (::conf->get_i("gamepad_axis_pos_pitch", -1)),
+    axis_neg_pitch (::conf->get_i("gamepad_axis_neg_pitch",  4)),
+    axis_pos_roll  (::conf->get_i("gamepad_axis_pos_roll ", -1)),
+    axis_neg_roll  (::conf->get_i("gamepad_axis_neg_roll ", -1)),
+
+    value_pos_x    (0),
+    value_neg_x    (0),
+    value_pos_y    (0),
+    value_neg_y    (0),
+    value_pos_z    (0),
+    value_neg_z    (0),
+    value_pos_yaw  (0),
+    value_neg_yaw  (0),
+    value_pos_pitch(0),
+    value_neg_pitch(0),
+    value_pos_roll (0),
+    value_neg_roll (0),
+
+    dx    (0),
+    dy    (0),
+    dz    (0),
+    dyaw  (0),
+    dpitch(0),
+    droll (0)
 {
-    for (int i = 0; i < naxis; i++) { gamepad_axis[i] = i; axis[i] = 0; }
-    for (int i = 0; i < nbutn; i++) { gamepad_butn[i] = i; butn[i] = 0; }
+}
+
+double dev::gamepad::deaden(double k) const
+{
+    if      (k > +dead_zone) return k + dead_zone * (k - 1);
+    else if (k < -dead_zone) return k + dead_zone * (k + 1);
+    else                     return 0;
 }
 
 //-----------------------------------------------------------------------------
 
-bool dev::gamepad::process_button(app::event *E)
-{
-    const int b = E->data.button.b;
-    const int d = E->data.button.d;
-
-    for (int i = 0; i < 16; ++i)
-        if (b == gamepad_butn[i])
-        {
-            butn[i] = d;
-            return true;
-        }
-
-    return false;
-}
+// Map an incoming axis change onto its configured value.
 
 bool dev::gamepad::process_axis(app::event *E)
 {
     const int    a = E->data.axis.a;
     const double v = E->data.axis.v / 32768.0;
 
-    for (int i = 0; i < 16; ++i)
-        if (a == gamepad_axis[i])
-        {
-            axis[i] = v;
-            return true;
-        }
+    if (a == axis_pos_x)     { value_pos_x     = v; return true; }
+    if (a == axis_neg_x)     { value_neg_x     = v; return true; }
+    if (a == axis_pos_y)     { value_pos_y     = v; return true; }
+    if (a == axis_neg_y)     { value_neg_y     = v; return true; }
+    if (a == axis_pos_z)     { value_pos_z     = v; return true; }
+    if (a == axis_neg_z)     { value_neg_z     = v; return true; }
+    if (a == axis_pos_yaw)   { value_pos_yaw   = v; return true; }
+    if (a == axis_neg_yaw)   { value_neg_yaw   = v; return true; }
+    if (a == axis_pos_pitch) { value_pos_pitch = v; return true; }
+    if (a == axis_neg_pitch) { value_neg_pitch = v; return true; }
+    if (a == axis_pos_roll)  { value_pos_roll  = v; return true; }
+    if (a == axis_neg_roll)  { value_neg_roll  = v; return true; }
 
     return false;
 }
@@ -63,52 +100,44 @@ bool dev::gamepad::process_axis(app::event *E)
 bool dev::gamepad::process_tick(app::event *E)
 {
     const double dt = E->data.tick.dt;
+    const double dp = dt * 10;
+    const double dr = dt * to_radians(45);
 
-    const double kp = dt * 10;
-    const double kr = dt * to_radians(45);
+    const double nx     = deaden(value_pos_x     - value_neg_x);
+    const double ny     = deaden(value_pos_y     - value_neg_y);
+    const double nz     = deaden(value_pos_z     - value_neg_z);
+    const double nyaw   = deaden(value_pos_yaw   - value_neg_yaw);
+    const double npitch = deaden(value_pos_pitch - value_neg_pitch);
+    const double nroll  = deaden(value_pos_roll  - value_neg_roll);
 
-#if 0
-    for (int i = 0; i < naxis; ++i)
-        printf("%f ", axis[i]);
-    for (int i = 0; i < nbutn; ++i)
-        printf("%d ", butn[i]);
-    printf("\n");
-#endif
+    dx     = filter * dx     + (1.0 - filter) * nx;
+    dy     = filter * dy     + (1.0 - filter) * ny;
+    dz     = filter * dz     + (1.0 - filter) * nz;
+    dyaw   = filter * dyaw   + (1.0 - filter) * nyaw;
+    dpitch = filter * dpitch + (1.0 - filter) * npitch;
+    droll  = filter * droll  + (1.0 - filter) * nroll;
 
     quat q = ::host->get_orientation();
     mat3 R(q);
 
-    ::host->set_orientation(q * quat(R[1], -axis[3] * kr)
-                              * quat(R[0], -axis[4] * kr));
+    ::host->set_orientation(q * quat(R[2], dr * droll)
+                              * quat(R[1], dr * dyaw)
+                              * quat(R[0], dr * dpitch));
 
-
-    printf("%f %f %f\n", axis[2], axis[5], (axis[5] - axis[2]) / 2);
-
-    ::host->offset_position(mat4(q) * vec3(axis[0] * kp,
-                                           axis[5] * kp
-                                          -axis[2] * kp,
-                                           axis[1] * kp));
-
-    // ::host->offset_position(mat3(::host->get_orientation()) * dpad * kp);
-
+    ::host->offset_position(mat4(q) * vec3(dp * dx, dp * dy, dp * dz));
 
     return false;
 }
 
 bool dev::gamepad::process_event(app::event *E)
 {
-    assert(E);
-
-    bool R = false;
-
     switch (E->get_type())
     {
-    case E_BUTTON: R |= process_button(E); break;
-    case E_AXIS:   R |= process_axis  (E); break;
-    case E_TICK:   R |= process_tick  (E); break;
+    case E_AXIS: if (process_axis(E)) return true; else break;
+    case E_TICK: if (process_tick(E)) return true; else break;
     }
 
-    return R || dev::input::process_event(E);
+    return dev::input::process_event(E);
 }
 
 //-----------------------------------------------------------------------------
