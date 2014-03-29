@@ -123,14 +123,14 @@ bool dev::mouse::process_key(app::event *E)
     else if (k == key_move_F) { motion[2] -= dd; return true; }
     else if (k == key_move_B) { motion[2] += dd; return true; }
 
-    // Teleport home.
+    // Teleport home. Allow other layers to respond by NOT claiming the event.
 
     else if (d)
     {
         if (k == SDL_SCANCODE_RETURN)
         {
             ::view->go_home();
-            return true;
+            return false;
         }
     }
 
