@@ -32,6 +32,8 @@ namespace app
 
         view();
 
+        virtual ~view() {}
+
         virtual void go_home();
 
         vec3 get_point_pos(const vec3&) const;
