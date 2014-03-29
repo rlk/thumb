@@ -60,8 +60,7 @@ dev::gamepad::gamepad() :
     dy    (0),
     dz    (0),
     dyaw  (0),
-    dpitch(0),
-    droll (0)
+    dpitch(0)
 {
 }
 

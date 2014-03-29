@@ -69,7 +69,6 @@ namespace dev
         double    dz;
         double    dyaw;
         double    dpitch;
-        double    droll;
 
         // Event handlers
 
