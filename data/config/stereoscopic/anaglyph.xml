@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<host>
+<host distance="0.5">
   <node name="default">
     <window w="1280" h="720"/>
     <channel w="1280" h="720" x="-0.114" r="0" g="1" b="0"/>

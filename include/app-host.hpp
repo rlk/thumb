@@ -62,15 +62,16 @@ namespace app
 
         // Configuration queries.
 
-        int get_window_m() const;
-        int get_window_c() const { return window_cursor;  }
-        int get_window_x() const { return window_rect[0]; }
-        int get_window_y() const { return window_rect[1]; }
-        int get_window_w() const { return window_rect[2]; }
-        int get_window_h() const { return window_rect[3]; }
-        int get_buffer_w() const { return buffer_size[0]; }
-        int get_buffer_h() const { return buffer_size[1]; }
-        int get_device()   const { return device; }
+        int    get_window_m() const;
+        int    get_window_c() const { return window_cursor;  }
+        int    get_window_x() const { return window_rect[0]; }
+        int    get_window_y() const { return window_rect[1]; }
+        int    get_window_w() const { return window_rect[2]; }
+        int    get_window_h() const { return window_rect[3]; }
+        int    get_buffer_w() const { return buffer_size[0]; }
+        int    get_buffer_h() const { return buffer_size[1]; }
+        double get_distance() const { return distance; }
+        int    get_device()   const { return device; }
 
         const app::frustum *get_overlay() const;
 
@@ -147,6 +148,8 @@ namespace app
         int buffer_size[2];
         int render_size[2];
         int device;
+
+        double distance;
 
         std::vector<dpy::display *> displays;
         std::vector<dpy::channel *> channels;

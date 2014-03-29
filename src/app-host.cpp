@@ -64,6 +64,7 @@ app::host::host(app::prog *p, std::string filename,
     calibration_state(false),
     calibration_index(0),
     device(0),
+    distance(0),
     overlay(0),
     program(p),
     render(0),
@@ -87,6 +88,8 @@ app::host::host(app::prog *p, std::string filename,
 
     if (app::node p = file.get_root().find("host"))
     {
+        distance = p.get_f("distance", 1.0);
+
         // Locate the configuration for this node.
 
         if (app::node n = p.find("node", "name", tag.c_str()))
