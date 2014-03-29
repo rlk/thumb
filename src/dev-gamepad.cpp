@@ -74,6 +74,24 @@ double dev::gamepad::deaden(double k) const
 
 //-----------------------------------------------------------------------------
 
+static double get_p(const quat& q)
+{
+    const vec3 z = zvector(mat3(q));
+
+    if (z[1] >=  1.0) return -PI / 2.0;
+    if (z[1] <= -1.0) return  PI / 2.0;
+
+    return asin(-z[1]);
+}
+
+static double get_t(const quat& q)
+{
+    const vec3 x = xvector(mat3(q));
+    return atan2(-x[2], x[0]);
+}
+
+//-----------------------------------------------------------------------------
+
 // Map an incoming axis change onto its configured value.
 
 bool dev::gamepad::process_axis(app::event *E)
@@ -108,21 +126,22 @@ bool dev::gamepad::process_tick(app::event *E)
     const double nz     = deaden(value_pos_z     - value_neg_z);
     const double nyaw   = deaden(value_pos_yaw   - value_neg_yaw);
     const double npitch = deaden(value_pos_pitch - value_neg_pitch);
-    const double nroll  = deaden(value_pos_roll  - value_neg_roll);
 
     dx     = filter * dx     + (1.0 - filter) * nx;
     dy     = filter * dy     + (1.0 - filter) * ny;
     dz     = filter * dz     + (1.0 - filter) * nz;
     dyaw   = filter * dyaw   + (1.0 - filter) * nyaw;
     dpitch = filter * dpitch + (1.0 - filter) * npitch;
-    droll  = filter * droll  + (1.0 - filter) * nroll;
 
-    quat q = ::host->get_orientation();
-    mat3 R(q);
+    quat   q = ::host->get_orientation();
+    double p = get_p(q) + dr * dpitch;
+    double t = get_t(q) + dr * dyaw;
 
-    ::host->set_orientation(q * quat(R[2], dr * droll)
-                              * quat(R[1], dr * dyaw)
-                              * quat(R[0], dr * dpitch));
+    p = std::max(p, -PI / 2.0);
+    p = std::min(p,  PI / 2.0);
+
+    ::host->set_orientation(quat(vec3(0, 1, 0), t)
+                          * quat(vec3(1, 0, 0), p));
 
     ::host->offset_position(mat4(q) * vec3(dp * dx, dp * dy, dp * dz));
 
