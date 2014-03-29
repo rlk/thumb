@@ -6,7 +6,7 @@
     <display type="direct">
       <viewport w="1280" h="800"/>
       <frustum>
-        <perspective hfov="60.0" vfov="35.0"/>
+        <perspective hfov="60.0" vfov="40.0"/>
       </frustum>
     </display>
   </node>
