@@ -27,7 +27,9 @@ namespace app
         vec3   position;
         mat4   tracking;
         double scaling;
-        bool   vertical;
+
+        bool   lock_upright;
+        bool   lock_origin;
 
     public:
 
@@ -40,10 +42,12 @@ namespace app
         vec3 get_point_vec(const quat&) const;
 
         void set_orientation(const quat& q);
-        void set_position   (const vec3& p) { position = p; }
+        void set_position   (const vec3& p);
         void set_tracking   (const mat4& M) { tracking = M; }
         void set_scaling    (double s)      { scaling  = s; }
-        void lock_vertical  (bool b)        { vertical = b; }
+
+        void set_lock_upright(bool b)       { lock_upright = b; }
+        void set_lock_origin (bool b)       { lock_origin  = b; }
 
         mat4 get_tracking   () const { return tracking;    }
         quat get_orientation() const { return orientation; }

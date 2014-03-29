@@ -18,7 +18,8 @@
 
 app::view::view() :
     scaling(1),
-    vertical(bool(::conf->get_i("view_lock_vertical", 0)))
+    lock_upright(false),
+    lock_origin (false)
 {
     go_home();
 }
@@ -46,7 +47,7 @@ vec3 app::view::get_point_vec(const quat& q) const
 
 void app::view::set_orientation(const quat& q)
 {
-    if (vertical)
+    if (lock_upright)
     {
         vec3 x(xvector(mat3(q)));
         vec3 y(0, 1, 0);
@@ -58,6 +59,14 @@ void app::view::set_orientation(const quat& q)
         orientation = quat(mat3(x, y, z));
     }
     else orientation = q;
+}
+
+void app::view::set_position(const vec3& p)
+{
+    if (lock_origin)
+        position = vec3();
+    else
+        position = p;
 }
 
 //-----------------------------------------------------------------------------
