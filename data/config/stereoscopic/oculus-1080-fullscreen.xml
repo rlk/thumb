@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<host>
+  <node name="default">
+    <window w="1920" h="1080" full="1" cursor="0" />
+    <channel w="1200" h="1350"/>
+    <channel w="1200" h="1350"/>
+    <buffer  w="1200" h="1350"/>
+    <overlay>
+      <frustum>
+        <!-- This determines the size of the GUI -->
+        <perspective hfov="100.0" vfov="75.0"/>
+      </frustum>
+    </overlay>
+    <display type="oculus" channel="0">
+      <viewport x="0" y="0" w="960" h="1080"/>
+    </display>
+    <display type="oculus" channel="1">
+      <viewport x="960" y="0" w="960" h="1080"/>
+    </display>
+  </node>
+</host>
