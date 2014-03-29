@@ -16,10 +16,7 @@
 
 //-----------------------------------------------------------------------------
 
-app::view::view() :
-    scaling(1),
-    lock_upright(false),
-    lock_origin (false)
+app::view::view() : scaling(1)
 {
     go_home();
 }
@@ -33,10 +30,14 @@ void app::view::go_home()
 
 //-----------------------------------------------------------------------------
 
+// Return the world-space position of a pointer given in eye coordinates.
+
 vec3 app::view::get_point_pos(const vec3& p) const
 {
     return get_inverse() * p;
 }
+
+// Return the world-space vector of a pointer given in eye coordinates.
 
 vec3 app::view::get_point_vec(const quat& q) const
 {
@@ -45,45 +46,24 @@ vec3 app::view::get_point_vec(const quat& q) const
 
 //-----------------------------------------------------------------------------
 
-void app::view::set_orientation(const quat& q)
-{
-    if (lock_upright)
-    {
-        vec3 x(xvector(mat3(q)));
-        vec3 y(0, 1, 0);
-        vec3 z(0, 0, 1);
-
-        z = normal(cross(x, y));
-        x = normal(cross(y, z));
-
-        orientation = quat(mat3(x, y, z));
-    }
-    else orientation = q;
-}
-
-void app::view::set_position(const vec3& p)
-{
-    if (lock_origin)
-        position = vec3();
-    else
-        position = p;
-}
-
-//-----------------------------------------------------------------------------
+// The view matrix is the inverse of a camera's model matrix.
 
 mat4 app::view::get_inverse() const
 {
-    const double s = 1 / scaling;
-    return translation(position)
-         * mat4(mat3(orientation))
-         * scale(vec3(s, s, s))
-         * tracking;
+    mat4 T = translation(position);
+    mat4 R = mat4(mat3(orientation));
+    mat4 S = scale(vec3(1.0 / scaling, 1.0 / scaling, 1.0 / scaling));
+
+    return T * R * S * tracking;
 }
 
 mat4 app::view::get_transform() const
 {
     return inverse(get_inverse());
 }
+
+// Load the view matrix onto the OpenGL matrix stack. Convert row-major to
+// column-major as required by OpenGL.
 
 void app::view::load_transform() const
 {

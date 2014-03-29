@@ -21,40 +21,34 @@ namespace app
 {
     class view
     {
-    private:
+    protected:
 
         quat   orientation;
         vec3   position;
         mat4   tracking;
         double scaling;
 
-        bool   lock_upright;
-        bool   lock_origin;
-
     public:
 
         view();
 
-        void go_home();
-
+        virtual void go_home();
 
         vec3 get_point_pos(const vec3&) const;
         vec3 get_point_vec(const quat&) const;
 
-        void set_orientation(const quat& q);
-        void set_position   (const vec3& p);
-        void set_tracking   (const mat4& M) { tracking = M; }
-        void set_scaling    (double s)      { scaling  = s; }
+        virtual mat4 get_tracking   () const { return tracking;    }
+        virtual quat get_orientation() const { return orientation; }
+        virtual vec3 get_position   () const { return position;    }
 
-        void set_lock_upright(bool b)       { lock_upright = b; }
-        void set_lock_origin (bool b)       { lock_origin  = b; }
+        virtual void set_orientation(const quat& q) { orientation = q; }
+        virtual void set_position   (const vec3& p) { position    = p; }
+        virtual void set_tracking   (const mat4& M) { tracking    = M; }
+        virtual void set_scaling    (double s)      { scaling     = s; }
 
-        mat4 get_tracking   () const { return tracking;    }
-        quat get_orientation() const { return orientation; }
-        vec3 get_position   () const { return position;    }
+        virtual mat4 get_inverse  () const;
+        virtual mat4 get_transform() const;
 
-        mat4  get_inverse  () const;
-        mat4  get_transform() const;
         void load_transform() const;
     };
 }
