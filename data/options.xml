@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <conf>
   <option name="config_file">config/common/960x540-window.xml</option>
+  <option name="input_mode">gamepad</option>
 </conf>
