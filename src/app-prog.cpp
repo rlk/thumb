@@ -172,7 +172,7 @@ app::prog::prog(const std::string& exe,
     // Initialize data access and configuration.
 
     ::data = new app::data(DEFAULT_DATA_FILE);
-    ::conf = new app::conf(DEFAULT_CONF_FILE);
+    ::conf = new app::conf(DEFAULT_OPTIONS_FILE);
     ::view = new app::view();
 
     ::data->init();
@@ -197,10 +197,10 @@ app::prog::prog(const std::string& exe,
     std::string lang_config;
 
     lang_config = ::conf->get_s("lang_file");
-    host_config = ::conf->get_s("host_file");
+    host_config = ::conf->get_s("display_config");
 
-    if (lang_config.empty()) lang_config = DEFAULT_LANG_FILE;
-    if (host_config.empty()) host_config = DEFAULT_HOST_FILE;
+    if (lang_config.empty()) lang_config = DEFAULT_LANGUAGE_FILE;
+    if (host_config.empty()) host_config = DEFAULT_CONFIG_FILE;
 
     ::lang = new app::lang(lang_config);
     ::glob = new app::glob();

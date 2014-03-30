@@ -15,7 +15,7 @@ endif
 
 ifdef ISMINGW
 	CC      = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-gcc.exe"
-	CXX     = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-g++.exe -fno-rtti"
+	CXX     = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-g++.exe" -fno-rtti
 else
 	CC      = cc
 	CXX     = c++ -fno-rtti

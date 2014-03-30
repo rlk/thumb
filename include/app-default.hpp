@@ -15,12 +15,11 @@
 
 //-----------------------------------------------------------------------------
 
-#define DEFAULT_HOST_FILE "config/common/960x540.xml"
-#define DEFAULT_LANG_FILE "lang.xml"
-#define DEFAULT_CONF_FILE "conf.xml"
-#define DEFAULT_DATA_FILE "data.xml"
-#define DEFAULT_DEMO_FILE "demo.xml"
-#define DEFAULT_SNAP_FILE "snap.png"
+#define DEFAULT_CONFIG_FILE   "config/common/960x540-window.xml"
+#define DEFAULT_LANGUAGE_FILE "language.xml"
+#define DEFAULT_OPTIONS_FILE  "options.xml"
+#define DEFAULT_DATA_FILE     "data.xml"
+#define DEFAULT_SNAP_FILE     "snap.png"
 
 #define DEFAULT_SANS_FONT "LiberationSans-Bold.ttf"
 #define DEFAULT_MONO_FONT "LiberationMono-Bold.ttf"
@@ -31,7 +30,6 @@
 #define DEFAULT_TAG       "default"
 #define DEFAULT_HOST      "localhost"
 #define DEFAULT_PORT         2827
-#define DEFAULT_SCRIPT_PORT  2829
 
 #define DEFAULT_PIXEL_WIDTH   960
 #define DEFAULT_PIXEL_HEIGHT  540
