@@ -196,8 +196,10 @@ app::prog::prog(const std::string& exe,
 
     std::string lang_config;
 
-    lang_config = ::conf->get_s("lang_file");
-    host_config = ::conf->get_s("display_config");
+    lang_config = ::conf->get_s("language_file");
+    host_config = ::conf->get_s("config_file");
+
+    printf("%s\n", host_config.c_str());
 
     if (lang_config.empty()) lang_config = DEFAULT_LANGUAGE_FILE;
     if (host_config.empty()) host_config = DEFAULT_CONFIG_FILE;

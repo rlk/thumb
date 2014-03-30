@@ -21,25 +21,21 @@
 #define DEFAULT_DATA_FILE     "data.xml"
 #define DEFAULT_SNAP_FILE     "snap.png"
 
-#define DEFAULT_SANS_FONT "LiberationSans-Bold.ttf"
-#define DEFAULT_MONO_FONT "LiberationMono-Bold.ttf"
+#define DEFAULT_SANS_FONT     "LiberationSans-Bold.ttf"
+#define DEFAULT_MONO_FONT     "LiberationMono-Bold.ttf"
 
 #define DEFAULT_DEPTH_PROGRAM "object-depth.xml"
 #define DEFAULT_COLOR_PROGRAM "object-color.xml"
 
-#define DEFAULT_TAG       "default"
-#define DEFAULT_HOST      "localhost"
-#define DEFAULT_PORT         2827
+#define DEFAULT_TAG           "default"
+#define DEFAULT_HOST          "localhost"
+#define DEFAULT_PORT          2827
 
 #define DEFAULT_PIXEL_WIDTH   960
 #define DEFAULT_PIXEL_HEIGHT  540
 #define DEFAULT_HORZ_FOV    60.00
 #define DEFAULT_VERT_FOV    35.00
-
-#define DEFAULT_PERF_AVERAGE   60
-
-#define DEFAULT_TRACKER_KEY 4126
-#define DEFAULT_CONTROL_KEY 4127
+#define DEFAULT_PERF_AVERAGE 60
 
 //-----------------------------------------------------------------------------
 
