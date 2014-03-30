@@ -356,7 +356,12 @@ void app::host::fini_listen()
 
 void app::host::init_script()
 {
-    if (root()) script_sd = init_socket(SOCK_DGRAM, DEFAULT_SCRIPT_PORT);
+    int port = ::conf->get_i("user_event_port", -1);
+
+    if (root() && port > 0)
+        script_sd = init_socket(SOCK_DGRAM, port);
+    else
+        script_sd = INVALID_SOCKET;
 }
 
 void app::host::poll_script()
@@ -375,8 +380,6 @@ void app::host::poll_script()
 
             if ((len = ::recv(script_sd, buf, sizeof (buf), 0)) > 0)
             {
-                printf("recv \"%s\" on port %d\n", buf, DEFAULT_SCRIPT_PORT);
-
                 event E;
                 memcpy(&l, buf, sizeof (l));
                 process_event(E.mk_user(l));
