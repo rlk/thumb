@@ -1232,10 +1232,14 @@ void gui::selector::mov_dir(std::string name)
 
         std::string::size_type s = curr.rfind("/");
 
-        if (s != std::string::npos)
-            curr.erase(s);
-        else
-            curr.erase( );
+        if (s)
+        {
+            if (s != std::string::npos)
+                curr.erase(s);
+            else
+                curr.erase( );
+        }
+        else curr = "/";
     }
     else
     {
