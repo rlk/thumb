@@ -154,6 +154,10 @@ static void find_rw_data(app::archive_l& archives)
         const std::string path = std::string(appdata) + "/Thumb";
         archives.push_back(new app::file_archive(path, true));
     }
+
+    // Fall back on the file system.
+
+    archives.push_back(new app::file_archive("", true));
 }
 
 //-----------------------------------------------------------------------------
