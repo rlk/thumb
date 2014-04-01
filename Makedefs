@@ -43,6 +43,8 @@ endif
 ifdef ISLINUX
 	ifdef DYNAMIC
 		CFLAGS += -fPIC
+	else
+		CFLAGS += -static-libgcc -static-libstdc++
 	endif
 	SYSLIBS = -lGL
 	LIBPATH = /usr/local/lib/ /usr/lib/ /usr/lib/x86_64-linux-gnu/
