@@ -236,19 +236,6 @@ static void nodelay(int sd)
         throw std::runtime_error(strerror(sock_errno));
 }
 
-static in_addr_t lookup(const char *hostname)
-{
-    struct hostent *H;
-    struct in_addr  A;
-
-    if ((H = gethostbyname(hostname)) == 0)
-        throw app::host_error(hostname);
-
-    memcpy(&A.s_addr, H->h_addr_list[0], H->h_length);
-
-    return A.s_addr;
-}
-
 static bool selectone(SOCKET sd, struct timeval *tv)
 {
     fd_set fds;
@@ -416,24 +403,27 @@ void app::host::init_server(app::node p)
 
         // Look up the given host name.
 
-        address.sin_family      = AF_INET;
-        address.sin_port        = htons (port);
-        address.sin_addr.s_addr = lookup(addr.c_str());
+        if (inet_aton(addr.c_str(), &address.sin_addr))
+        {
+            address.sin_family = AF_INET;
+            address.sin_port   = htons(port);
 
-        // Create a socket and connect.
+            // Create a socket and connect.
 
-        if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-            throw app::sock_error(addr);
+            if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+                throw app::sock_error(addr);
 
-        while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
-            if (sock_errno == ECONNREFUSED)
-            {
-                fprintf(stderr, "Waiting for %s\n", addr.c_str());
-                usleep(250000);
-            }
-            else throw app::sock_error(addr);
+            while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
+                if (sock_errno == ECONNREFUSED)
+                {
+                    fprintf(stderr, "Waiting for %s\n", addr.c_str());
+                    usleep(250000);
+                }
+                else throw app::sock_error(addr);
 
-        nodelay(server_sd);
+            nodelay(server_sd);
+        }
+        else throw app::sock_error(addr);
     }
 }
 
