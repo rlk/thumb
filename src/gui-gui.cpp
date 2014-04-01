@@ -1196,7 +1196,7 @@ gui::selector::selector(std::string path, std::string ext)
 {
     D = new gui::selector_dir(path, this);
     R = new gui::selector_reg("",   this);
-    F = new gui::finder(this);
+    F = new gui::finder(this, ext);
 
     F->value(path);
 
@@ -1275,6 +1275,17 @@ gui::selector::~selector()
 //-----------------------------------------------------------------------------
 // File selection list.
 
+static bool extcmp(const std::string& str, const std::string& ext)
+{
+    const size_t ssiz = str.size();
+    const size_t esiz = ext.size();
+
+    if (ssiz >= esiz)
+        return (str.compare(ssiz - esiz, esiz, ext) == 0);
+    else
+        return false;
+}
+
 void gui::finder::value(std::string cwd)
 {
     // Delete all child nodes.
@@ -1299,7 +1310,7 @@ void gui::finder::value(std::string cwd)
         add(new finder_dir(*i, target));
 
     for (app::str_set::iterator i = regs.begin(); i != regs.end(); ++i)
-        add(new finder_reg(*i, target));
+        add(new finder_reg(*i, target, extcmp(*i, ext)));
 
     add(new gui::filler());
 
@@ -1331,18 +1342,30 @@ gui::finder_elt::finder_elt(std::string t, gui::selector *s) :
     }
 }
 
-gui::finder_dir::finder_dir(std::string t, gui::selector *s) : finder_elt(t, s)
+gui::finder_dir::finder_dir(std::string t, gui::selector *s, bool e)
+   : finder_elt(t, s)
 {
     color[0] *= 1.00;
     color[1] *= 1.00;
     color[2] *= 1.00;
 }
 
-gui::finder_reg::finder_reg(std::string t, gui::selector *s) : finder_elt(t, s)
+gui::finder_reg::finder_reg(std::string t, gui::selector *s, bool e)
+   : finder_elt(t, s)
 {
-    color[0] *= 1.00;
-    color[1] *= 1.00;
-    color[2] *= 0.25;
+    is_enabled = e;
+    if (e)
+    {
+        color[0] *= 1.00;
+        color[1] *= 1.00;
+        color[2] *= 0.25;
+    }
+    else
+    {
+        color[0] *= 0.25;
+        color[1] *= 0.25;
+        color[2] *= 0.25;
+    }
 }
 
 //-----------------------------------------------------------------------------

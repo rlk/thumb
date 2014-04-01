@@ -426,9 +426,10 @@ namespace gui
     {
     protected:
         selector *target;
+        std::string ext;
 
     public:
-        finder(gui::selector *s) : target(s) { }
+        finder(gui::selector *s, std::string e) : target(s), ext(e) { }
         void value(std::string);
     };
 
@@ -443,14 +444,14 @@ namespace gui
     class finder_dir : public finder_elt
     {
     public:
-        finder_dir(std::string t, gui::selector *s);
+        finder_dir(std::string t, gui::selector *s, bool e=true);
         void apply() { target->mov_dir(str); }
     };
 
     class finder_reg : public finder_elt
     {
     public:
-        finder_reg(std::string t, gui::selector *s);
+        finder_reg(std::string t, gui::selector *s, bool e=true);
         void apply() { target->set_reg(str); }
     };
 
