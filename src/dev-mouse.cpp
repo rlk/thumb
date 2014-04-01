@@ -127,7 +127,7 @@ bool dev::mouse::process_key(app::event *E)
 
     else if (d)
     {
-        if (k == SDL_SCANCODE_RETURN)
+        if (k == SDL_SCANCODE_HOME)
         {
             ::view->go_home();
             return false;
