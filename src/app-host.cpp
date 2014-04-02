@@ -395,35 +395,32 @@ void app::host::init_server(app::node p)
         socklen_t  addresslen = sizeof (sockaddr_t);
         sockaddr_t address;
 
-        std::string addr = n.get_s("addr");
+        std::string name = n.get_s("addr");
         int         port = n.get_i("port");
 
-        if (addr.empty()) addr = DEFAULT_HOST;
+        if (name.empty()) name = DEFAULT_HOST;
         if (port == 0)    port = DEFAULT_PORT;
 
         // Look up the given host name.
 
-        if (inet_aton(addr.c_str(), &address.sin_addr))
+        if (init_sockaddr(address, name.c_str(), port))
         {
-            address.sin_family = AF_INET;
-            address.sin_port   = htons(port);
-
             // Create a socket and connect.
 
             if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-                throw app::sock_error(addr);
+                throw app::sock_error(name);
 
             while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
                 if (sock_errno == ECONNREFUSED)
                 {
-                    fprintf(stderr, "Waiting for %s\n", addr.c_str());
+                    fprintf(stderr, "Waiting for %s\n", name.c_str());
                     usleep(250000);
                 }
-                else throw app::sock_error(addr);
+                else throw app::sock_error(name);
 
             nodelay(server_sd);
         }
-        else throw app::sock_error(addr);
+        else throw app::sock_error(name);
     }
 }
 

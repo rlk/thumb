@@ -50,12 +50,32 @@ typedef int SOCKET;
 #define SOCKET_ERROR   -1
 #define INVALID_SOCKET -1
 
-#endif //----------------------------------------------------------------------
+#endif
 
 typedef struct sockaddr_in sockaddr_t;
 
 typedef std::list<SOCKET>           SOCKET_v;
 typedef std::list<SOCKET>::iterator SOCKET_i;
+
+//-----------------------------------------------------------------------------
+
+// We avoid the use of full host name lookup because gethostbyname precludes
+// static linking under Linux. However, inet_aton is not implemented by WinSock.
+// Thus, we're left with the deprecated inet_addr.
+
+inline bool init_sockaddr(sockaddr_t &dest, const char *name, short port)
+{
+    in_addr_t addr = in_addr_t(inet_addr(name));
+
+    if (addr != INADDR_NONE)
+    {
+        dest.sin_family = AF_INET;
+        dest.sin_port = htons(port);
+        dest.sin_addr.s_addr = addr;
+        return true;
+    }
+    return false;
+}
 
 //-----------------------------------------------------------------------------
 
