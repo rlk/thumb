@@ -62,6 +62,7 @@ namespace app
         virtual void run();
         virtual void stop();
         virtual void swap();
+        virtual void dump(std::string);
 
         virtual quat get_orientation() const;
         virtual void set_orientation(const quat&);
@@ -84,7 +85,7 @@ namespace app
 
         std::string host_config;
         std::string exe;
-        
+
         bool running;
         bool restart;
 

@@ -199,8 +199,6 @@ app::prog::prog(const std::string& exe,
     lang_config = ::conf->get_s("language_file");
     host_config = ::conf->get_s("config_file");
 
-    printf("%s\n", host_config.c_str());
-
     if (lang_config.empty()) lang_config = DEFAULT_LANGUAGE_FILE;
     if (host_config.empty()) host_config = DEFAULT_CONFIG_FILE;
 
@@ -320,6 +318,18 @@ void app::prog::stop()
 void app::prog::swap()
 {
     SDL_GL_SwapWindow(window);
+}
+
+void app::prog::dump(std::string name)
+{
+    unsigned char *p = 0;
+    size_t         n = 0;
+
+    if ((p = (unsigned char *) ::data->load(name, &n)))
+    {
+        for (size_t i = 0; i < n; i++)
+            putchar(int(p[i]));
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -497,7 +507,7 @@ void app::prog::screenshot(std::string filename, int w, int h)
         else
             snapraw(filename.c_str(), snap_p, snap_w, snap_h);
 
-        printf("%s\n", filename.c_str());
+        fprintf(stderr, "%s\n", filename.c_str());
     }
 }
 
@@ -552,12 +562,12 @@ void app::prog::axis_state()
     if (axis_verbose)
     {
         for (int i = 0; i < SDL_JoystickNumAxes   (joystick); ++i)
-            printf("%+7d",  SDL_JoystickGetAxis   (joystick, i));
+            fprintf(stderr, "%+7d",  SDL_JoystickGetAxis   (joystick, i));
 
         for (int i = 0; i < SDL_JoystickNumButtons(joystick); ++i)
-            printf("%2d",   SDL_JoystickGetButton (joystick, i));
+            fprintf(stderr, "%2d",   SDL_JoystickGetButton (joystick, i));
 
-        printf("\n");
+        fprintf(stderr, "\n");
     }
 }
 
