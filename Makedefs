@@ -81,6 +81,7 @@ else
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
 	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH)) \
 	                               $(addsuffix libglew32.a,   $(LIBPATH))) -lglew)
+	LIBS += $(firstword $(wildcard $(addsuffix libiconv.a,    $(LIBPATH))) -liconv)
 endif
 
 CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
