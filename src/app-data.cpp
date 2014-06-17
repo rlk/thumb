@@ -188,7 +188,7 @@ void app::data::init()
 
 void app::data::add_pack_archive(const void *ptr, size_t len)
 {
-    archives.push_front(new app::pack_archive(ptr, len));
+    archives.push_back(new app::pack_archive(ptr, len));
 }
 
 // Return a buffer containing the named data file.

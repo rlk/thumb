@@ -68,6 +68,11 @@ app::file_buffer::file_buffer(std::string name)
 
 //-----------------------------------------------------------------------------
 
+app::file_archive::file_archive(std::string path, bool writable)
+    : path(path), writable(writable)
+{
+}
+
 // Determine whether the named file exists within this archive.
 
 bool app::file_archive::find(std::string name) const

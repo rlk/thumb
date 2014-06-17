@@ -19,10 +19,10 @@ ifdef ISMINGW
 else
 	CC      = cc
 	CXX     = c++ -fno-rtti
-#	DYNAMIC = true
+	DYNAMIC = true
 endif
 
-CFLAGS += -Wall -O2
+CFLAGS += -Wall -g
 
 #------------------------------------------------------------------------------
 # Configure the system libraries.

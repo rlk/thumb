@@ -36,8 +36,7 @@ namespace app
 
     public:
 
-        file_archive(std::string path, bool writable=false) :
-            path(path), writable(writable) { }
+        file_archive(std::string path, bool writable=false);
 
         virtual bool     find(std::string)                         const;
         virtual buffer_p load(std::string)                         const;
