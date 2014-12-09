@@ -147,7 +147,7 @@ ogl::uniform *app::glob::load_uniform(const std::string& name, GLsizei size)
                 uniform_map[name].ref = 1;
             }
         }
-        catch (std::runtime_error& e)
+        catch (std::runtime_error&)
         {
             return 0;
         }
@@ -337,7 +337,7 @@ const ogl::texture *app::glob::load_texture(const std::string& name,
                 texture_map[name].ref = 1;
             }
         }
-        catch (std::runtime_error& e)
+        catch (std::runtime_error&)
         {
             if (name == fallback)
                 return 0;
@@ -399,7 +399,7 @@ const ogl::binding *app::glob::load_binding(const std::string& name,
                 binding_map[name].ref = 1;
             }
         }
-        catch (std::runtime_error& e)
+        catch (std::runtime_error&)
         {
             if (name == fallback)
                 return 0;
@@ -460,7 +460,7 @@ const ogl::surface *app::glob::load_surface(const std::string& name, bool cent)
                 surface_map[name].ref = 1;
             }
         }
-        catch (std::runtime_error& e)
+        catch (std::runtime_error&)
         {
             return 0;
         }
@@ -518,7 +518,7 @@ ogl::convex *app::glob::load_convex(const std::string& name)
                 convex_map[name].ref = 1;
             }
         }
-        catch (std::runtime_error& e)
+        catch (std::runtime_error&)
         {
             return 0;
         }

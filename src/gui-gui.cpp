@@ -1349,9 +1349,6 @@ gui::finder_elt::finder_elt(std::string t, gui::selector *s) :
 gui::finder_dir::finder_dir(std::string t, gui::selector *s, bool e)
    : finder_elt(t, s)
 {
-    color[0] *= 1.00;
-    color[1] *= 1.00;
-    color[2] *= 1.00;
 }
 
 gui::finder_reg::finder_reg(std::string t, gui::selector *s, bool e)
@@ -1360,15 +1357,15 @@ gui::finder_reg::finder_reg(std::string t, gui::selector *s, bool e)
     is_enabled = e;
     if (e)
     {
-        color[0] *= 1.00;
-        color[1] *= 1.00;
-        color[2] *= 0.25;
+        color[0] = GLubyte(color[0] * 1.00);
+        color[1] = GLubyte(color[1] * 1.00);
+        color[2] = GLubyte(color[2] * 0.25);
     }
     else
     {
-        color[0] *= 0.25;
-        color[1] *= 0.25;
-        color[2] *= 0.25;
+        color[0] = GLubyte(color[0] * 0.25);
+        color[1] = GLubyte(color[1] * 0.25);
+        color[2] = GLubyte(color[2] * 0.25);
     }
 }
 

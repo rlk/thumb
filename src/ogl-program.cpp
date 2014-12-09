@@ -258,7 +258,7 @@ void ogl::program::init()
         const std::string vert_name = root.get_s("vert");
         const std::string frag_name = root.get_s("frag");
 
-        discard = bool(root.get_i("discard"));
+        discard = root.get_i("discard") ? true : false;
 
         // Load the shader files.
 

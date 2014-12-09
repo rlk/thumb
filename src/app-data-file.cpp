@@ -10,26 +10,21 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <app-default.hpp>
 #include <app-data-file.hpp>
 #include <app-conf.hpp>
 #include <etc-dir.hpp>
-
-//-----------------------------------------------------------------------------
-
-#ifdef _WIN32
-#include <io.h>
-#define open  _open
-#define read  _read
-#define write _write
-#define close _close
-#endif
 
 //-----------------------------------------------------------------------------
 

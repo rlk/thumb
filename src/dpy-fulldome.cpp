@@ -180,9 +180,9 @@ bool dpy::fulldome::pointer_to_3D(app::event *E, int x, int y)
         {
             vec3 x(1, 0, 0);
             vec3 y(0, 1, 0);
-            vec3 z(-cos(a) * sin(r * M_PI / 2.0),
-                   -         cos(r * M_PI / 2.0),
-                   -sin(a) * sin(r * M_PI / 2.0));
+            vec3 z(-cos(a) * sin(r * PI / 2.0),
+                   -         cos(r * PI / 2.0),
+                   -sin(a) * sin(r * PI / 2.0));
 
             x = normal(cross(y, z));
             y = normal(cross(z, x));

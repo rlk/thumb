@@ -359,13 +359,13 @@ void app::host::poll_script()
     {
         if (selectone(script_sd, &tv))
         {
-            char    buf[256];
-            ssize_t len;
+            char buf[256];
+            int  len;
             long long l;
 
             memset(buf, 0, sizeof (buf));
 
-            if ((len = ::recv(script_sd, buf, sizeof (buf), 0)) > 0)
+            if ((len = int(::recv(script_sd, buf, sizeof (buf), 0))) > 0)
             {
                 event E;
                 memcpy(&l, buf, sizeof (l));

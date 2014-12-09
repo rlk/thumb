@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <algorithm>
 #include <stdexcept>
 #include <cassert>
 #include <cstdio>
@@ -45,10 +46,10 @@ static void init_opt()
 
     // Query GL capabilities.
 
-    ogl::has_depth_stencil = glewIsSupported("GL_EXT_packed_depth_stencil");
-    ogl::has_multisample   = glewIsSupported("GL_multisample");
-    ogl::has_anisotropic   = glewIsSupported("GL_EXT_texture_filter_anisotropic");
-    ogl::has_s3tc          = glewIsSupported("GL_EXT_texture_compression_s3tc");
+    ogl::has_depth_stencil = glewIsSupported("GL_EXT_packed_depth_stencil")       ? true : false;
+	ogl::has_multisample   = glewIsSupported("GL_multisample")                    ? true : false;
+	ogl::has_anisotropic   = glewIsSupported("GL_EXT_texture_filter_anisotropic") ? true : false;
+	ogl::has_s3tc          = glewIsSupported("GL_EXT_texture_compression_s3tc")   ? true : false;
 
     // The light count is constrained by both uniform and varying limits.
 

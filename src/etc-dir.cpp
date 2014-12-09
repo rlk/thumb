@@ -58,8 +58,8 @@ static bool dir_make(std::string& dir)
 #include <tchar.h>
 #include <stdio.h>
 
-static HANDLE          H = INVALID_HANDLE_VALUE;
-static WIN32_FIND_DATA D;
+static HANDLE           H = INVALID_HANDLE_VALUE;
+static WIN32_FIND_DATAA D;
 
 static std::string dir_list(std::string& dir)
 {
@@ -67,12 +67,12 @@ static std::string dir_list(std::string& dir)
     {
         std::string pattern = dir + "/*";
 
-        if ((H = FindFirstFile(pattern.c_str(), &D)) != INVALID_HANDLE_VALUE)
+        if ((H = FindFirstFileA(pattern.c_str(), &D)) != INVALID_HANDLE_VALUE)
             return D.cFileName;
     }
     else
     {
-        if (FindNextFile(H, &D))
+        if (FindNextFileA(H, &D))
             return D.cFileName;
     }
     return "";
@@ -86,7 +86,7 @@ static void dir_done()
 
 static bool dir_make(std::string& dir)
 {
-    return (CreateDirectory(dir.c_str(), 0) != 0);
+    return (CreateDirectoryA(dir.c_str(), 0) != 0);
 }
 
 #endif

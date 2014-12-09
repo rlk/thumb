@@ -252,7 +252,7 @@ cnt::about_panel::about_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
         text = std::string((const char *) ::data->load("ABOUT.md"));
         ::data->free("ABOUT.md");
     }
-    catch (std::runtime_error& e)
+    catch (std::runtime_error&)
     {
         text = "## ABOUT.md not found";
     }

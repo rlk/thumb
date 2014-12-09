@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 
 #include <mxml.h>
 

@@ -326,10 +326,10 @@ void ogl::frame::draw()
         bind_color(GL_TEXTURE0);
         glBegin(GL_QUADS);
         {
-            glTexCoord2f(0, 0); glVertex2f(-1.0f, -1.0f);
-            glTexCoord2f(w, 0); glVertex2f(+1.0f, -1.0f);
-            glTexCoord2f(w, h); glVertex2f(+1.0f, +1.0f);
-            glTexCoord2f(0, h); glVertex2f(-1.0f, +1.0f);
+            glTexCoord2f(GLfloat(0), GLfloat(0)); glVertex2f(-1.0f, -1.0f);
+            glTexCoord2f(GLfloat(w), GLfloat(0)); glVertex2f(+1.0f, -1.0f);
+            glTexCoord2f(GLfloat(w), GLfloat(h)); glVertex2f(+1.0f, +1.0f);
+            glTexCoord2f(GLfloat(0), GLfloat(h)); glVertex2f(-1.0f, +1.0f);
         }
         glEnd();
         free_color(GL_TEXTURE0);

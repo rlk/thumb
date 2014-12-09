@@ -15,6 +15,13 @@
 
 #include <stdexcept>
 
+#ifdef _WIN32
+#include <io.h>
+#define open  _open
+#define write _write
+#define close _close
+#endif
+
 #include <ogl-opengl.hpp>
 #include <app-event.hpp>
 #include <etc-vector.hpp>
@@ -552,7 +559,7 @@ void app::prog::axis_setup()
 
         SDL_JoystickEventState(SDL_ENABLE);
     }
-    axis_verbose = bool(::conf->get_i("joystick_verbose", 0));
+    axis_verbose = ::conf->get_i("joystick_verbose", 0) ? true : false;
 }
 
 // Report the current state of the open joystick device.

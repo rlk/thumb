@@ -148,7 +148,7 @@ bool mode::info::process_event(app::event *E)
         if (gui && E->data.click.b == 1)
         {
             gui->click(E->data.click.m,
-                       E->data.click.d);
+                       E->data.click.d ? true : false);
             return true;
         }
         return false;
