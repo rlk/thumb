@@ -751,20 +751,26 @@ void ogl::pool::draw_fini()
 
 void ogl::pool::init()
 {
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
+    if (ogl::context)
+    {
+        glGenBuffers(1, &vbo);
+        glGenBuffers(1, &ebo);
 
-    resort = true;
-    rebuff = true;
+        resort = true;
+        rebuff = true;
+    }
 }
 
 void ogl::pool::fini()
 {
-    if (ebo) glDeleteBuffers(1, &ebo);
-    if (vbo) glDeleteBuffers(1, &vbo);
+    if (ogl::context)
+    {
+        if (ebo) glDeleteBuffers(1, &ebo);
+        if (vbo) glDeleteBuffers(1, &vbo);
 
-    ebo = 0;
-    vbo = 0;
+        ebo = 0;
+        vbo = 0;
+    }
 }
 
 //=============================================================================

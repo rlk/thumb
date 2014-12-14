@@ -17,6 +17,7 @@
 #include <SDL_keyboard.h>
 
 #include <gui-gui.hpp>
+#include <etc-log.hpp>
 #include <etc-dir.hpp>
 #include <app-data.hpp>
 #include <app-conf.hpp>
@@ -210,7 +211,7 @@ void gui::string::init_font()
         }
         catch (std::runtime_error& e)
         {
-            std::cerr << e.what() << std::endl;
+            etc::log(e.what());
         }
 
         try
@@ -219,7 +220,7 @@ void gui::string::init_font()
         }
         catch (std::runtime_error& e)
         {
-            std::cerr << e.what() << std::endl;
+            etc::log(e.what());
         }
     }
     count++;
@@ -1167,6 +1168,9 @@ gui::pager::pager(std::string text)
     std::string       line;
 
     while (std::getline(list, line))
+    {
+        line.erase(line.find_last_not_of(" \n\r\t") + 1);
+
         if (line[0] == '#')
         {
             std::string head(line, line.find_first_not_of("# "));
@@ -1178,6 +1182,7 @@ gui::pager::pager(std::string text)
         }
         else
             add(new gui::pager_line(line, 0xFF, 0xFF, 0xFF));
+    }
 }
 
 gui::pager_line::pager_line(std::string str, GLubyte r, GLubyte g, GLubyte b) :
@@ -1467,7 +1472,7 @@ void gui::dialog::click(int m, bool d)
     }
     catch (std::runtime_error& e)
     {
-        std::cerr << e.what() << std::endl;
+        etc::log(e.what());
     }
 
     // Activation may have resulted in widget deletion.  Confirm the focus.

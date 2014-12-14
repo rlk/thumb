@@ -269,36 +269,42 @@ void ogl::frame::init_frame()
 
 void ogl::frame::init()
 {
-    if (has_color)
+    if (ogl::context)
     {
-        glGenTextures(1, &color);
+        if (has_color)
+        {
+            glGenTextures(1, &color);
 
-        if (target == GL_TEXTURE_CUBE_MAP)
-            init_cube();
-        else
-            init_color();
-    }
-    if (has_depth)
-    {
-        glGenTextures(1, &depth);
-        init_depth();
-    }
+            if (target == GL_TEXTURE_CUBE_MAP)
+                init_cube();
+            else
+                init_color();
+        }
+        if (has_depth)
+        {
+            glGenTextures(1, &depth);
+            init_depth();
+        }
 
-    glGenFramebuffersEXT(1, &buffer);
+        glGenFramebuffersEXT(1, &buffer);
 
-    push(buffer, 0, 0, w, h);
-    {
-        init_frame();
+        push(buffer, 0, 0, w, h);
+        {
+            init_frame();
+        }
+        pop();
     }
-    pop();
 }
 
 void ogl::frame::fini()
 {
-    if (buffer) glDeleteFramebuffersEXT(1, &buffer);
+    if (ogl::context)
+    {
+        if (buffer) glDeleteFramebuffersEXT(1, &buffer);
 
-    if (color) glDeleteTextures(1, &color);
-    if (depth) glDeleteTextures(1, &depth);
+        if (color) glDeleteTextures(1, &color);
+        if (depth) glDeleteTextures(1, &depth);
+    }
 }
 
 void ogl::frame::draw()

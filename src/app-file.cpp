@@ -17,6 +17,7 @@
 
 #include <mxml.h>
 
+#include <etc-log.hpp>
 #include <app-file.hpp>
 #include <app-data.hpp>
 
@@ -100,7 +101,7 @@ void app::node::read(const std::string& name)
         }
         catch (std::runtime_error& e)
         {
-            std::cerr << e.what() << std::endl;
+            etc::log(e.what());
         }
     }
 }
@@ -119,7 +120,7 @@ void app::node::write(const std::string& name)
             }
             catch (std::runtime_error& e)
             {
-                std::cerr << e.what() << std::endl;
+                etc::log(e.what());
             }
             free(buff);
         }

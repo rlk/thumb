@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cassert>
 
+#include <etc-log.hpp>
 #include <etc-vector.hpp>
 #include <etc-ode.hpp>
 #include <ogl-pool.hpp>
@@ -880,7 +881,7 @@ void wrl::world::load(std::string name)
     }
     catch (std::exception& e)
     {
-        std::cerr << "world::load: " << e.what() << std::endl;
+        etc::log(e.what());
     }
 }
 

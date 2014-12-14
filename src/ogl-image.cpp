@@ -125,40 +125,38 @@ void ogl::image::draw() const
 
 void ogl::image::init()
 {
-    assert(object == 0);
-    assert(p);
-
-    // Create a new texture object.
-
-    glGenTextures(1, &object);
-
-    bind();
+    if (ogl::context)
     {
-        glTexImage2D(target, 0, formint, w, h, 0, formext, type, p);
+        assert(object == 0);
+        assert(p);
 
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        // Create a new texture object.
+
+        glGenTextures(1, &object);
+
+        bind();
+        {
+            glTexImage2D(target, 0, formint, w, h, 0, formext, type, p);
+
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
+        free();
     }
-    free();
 }
 
 void ogl::image::fini()
 {
-    assert(object);
-    assert(p);
-
-    // Read back the contents of the image.
-/*
-    bind();
+    if (ogl::context)
     {
-        glGetTexImage(target, 0, GL_RGBA, GL_UNSIGNED_BYTE, p);
-    }
-    free();
-*/
-    // Delete the texture object.
+        assert(object);
+        assert(p);
 
-    glDeleteTextures(1, &object);
-    object = 0;
+        // Delete the texture object.
+
+        glDeleteTextures(1, &object);
+        object = 0;
+    }
 }
 
 //-----------------------------------------------------------------------------

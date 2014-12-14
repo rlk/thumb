@@ -119,7 +119,7 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
 
 bool mode::info::process_event(app::event *E)
 {
-    const app::frustum *overlay = ::host->get_overlay();
+    const app::frustum *overlay = host ? ::host->get_overlay() : 0;
     double x = 0;
     double y = 0;
 

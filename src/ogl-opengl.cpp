@@ -21,6 +21,8 @@
 
 //-----------------------------------------------------------------------------
 
+bool ogl::context = false;
+
 bool ogl::has_depth_stencil;
 bool ogl::has_multisample;
 bool ogl::has_anisotropic;
@@ -80,7 +82,7 @@ static void init_opt()
     // Off-screen rendering
 
     ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap", 0) != 0);
-    ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom",   0)   != 0);
+    ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom",   0) != 0);
 }
 
 static void init_state(bool multisample)
@@ -97,6 +99,13 @@ void ogl::init(bool multisample)
 {
     init_opt();
     init_state(multisample);
+
+    ogl::context = true;
+}
+
+void ogl::fini()
+{
+    ogl::context = false;
 }
 
 //-----------------------------------------------------------------------------

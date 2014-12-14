@@ -118,14 +118,14 @@ void ogl::texture::load_png(const void *buf, size_t len, std::vector<GLubyte>& p
         h = GLsizei(png_get_image_height(rp, ip));
         c = GLsizei(png_get_channels    (rp, ip));
 
-        p.reserve(w * h * c);
+        p.resize(w * h * c);
 
         // Read the pixel data.
 
         if ((bp = png_get_rows(rp, ip)))
 
             for (GLsizei i = 0, j = h - 1; i < h; ++i, --j)
-                memcpy(&p.front() + (w * c) * i, bp[j], (w * c));
+                memcpy(&p[w * c * i], bp[j], (w * c));
     }
 
     // Release all resources.
@@ -347,21 +347,27 @@ void ogl::texture::free(GLenum unit) const
 
 void ogl::texture::init()
 {
-    std::map<int, vec4> scale;
+    if (ogl::context)
+    {
+        std::map<int, vec4> scale;
 
-    std::string path = "texture/" + name;
+        std::string path = "texture/" + name;
 
-    glGenTextures(1, &object);
+        glGenTextures(1, &object);
 
-    load_opt(path, scale);
-    load_img(path, scale);
-    load_prm(path);
+        load_opt(path, scale);
+        load_img(path, scale);
+        load_prm(path);
+    }
 }
 
 void ogl::texture::fini()
 {
-    glDeleteTextures(1, &object);
-    object = 0;
+    if (ogl::context)
+    {
+        glDeleteTextures(1, &object);
+        object = 0;
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -23,6 +23,8 @@
 
 namespace ogl
 {
+    extern bool context;
+
     extern bool has_depth_stencil;
     extern bool has_multisample;
     extern bool has_anisotropic;
@@ -39,6 +41,7 @@ namespace ogl
     bool check_ext(const char *);
 
     void init(bool);
+    void fini();
 
     void curr_texture(GLenum);
     void bind_texture(GLenum, GLenum, GLuint);

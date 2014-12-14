@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cstdio>
 
+#include <etc-log.hpp>
 #include <ogl-uniform.hpp>
 #include <ogl-process.hpp>
 #include <ogl-program.hpp>
@@ -177,7 +178,7 @@ void ogl::program::init_uniforms(app::node p)
 
 bool ogl::program::program_log(GLuint handle, const std::string& name)
 {
-    char *log = 0;
+    char *str = 0;
     GLint len = 0;
     GLint tst = 0;
 
@@ -186,13 +187,13 @@ bool ogl::program::program_log(GLuint handle, const std::string& name)
     glGetProgramiv(handle, GL_LINK_STATUS,     &tst);
     glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &len);
 
-    if ((tst == 0) && (len > 1) && (log = new char[len + 1]))
+    if ((tst == 0) && (len > 1) && (str = new char[len + 1]))
     {
-        glGetProgramInfoLog(handle, len, NULL, log);
+        glGetProgramInfoLog(handle, len, NULL, str);
 
-        fprintf(stderr, "%s\n%s", name.c_str(), log);
+        etc::log("%s\n%s", name.c_str(), str);
 
-        delete [] log;
+        delete [] str;
 
         return true;
     }
@@ -201,7 +202,7 @@ bool ogl::program::program_log(GLuint handle, const std::string& name)
 
 bool ogl::program::shader_log(GLuint handle, const std::string& name)
 {
-    char *log = 0;
+    char *str = 0;
     GLint len = 0;
     GLint tst = 0;
 
@@ -210,13 +211,13 @@ bool ogl::program::shader_log(GLuint handle, const std::string& name)
     glGetShaderiv(handle, GL_COMPILE_STATUS,  &tst);
     glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &len);
 
-    if ((tst == 0) && (len > 1) && (log = new char[len + 1]))
+    if ((tst == 0) && (len > 1) && (str = new char[len + 1]))
     {
-        glGetShaderInfoLog(handle, len, NULL, log);
+        glGetShaderInfoLog(handle, len, NULL, str);
 
-        fprintf(stderr, "%s\n%s", name.c_str(), log);
+        etc::log("%s\n%s", name.c_str(), str);
 
-        delete [] log;
+        delete [] str;
 
         return true;
     }
@@ -249,79 +250,85 @@ GLuint ogl::program::compile(GLenum type, const std::string& name,
 
 void ogl::program::init()
 {
-    std::string path = "program/" + name;
-
-    app::file file(path);
-
-    if (app::node root = file.get_root().find("program"))
+    if (ogl::context)
     {
-        const std::string vert_name = root.get_s("vert");
-        const std::string frag_name = root.get_s("frag");
+        std::string path = "program/" + name;
 
-        discard = root.get_i("discard") ? true : false;
+        app::file file(path);
 
-        // Load the shader files.
-
-        const std::string vert_text = load(vert_name);
-        const std::string frag_text = load(frag_name);
-
-        // Compile the shaders.
-
-        vert = compile(GL_VERTEX_SHADER,   vert_name, vert_text);
-        frag = compile(GL_FRAGMENT_SHADER, frag_name, frag_text);
-
-        // Link the shader objects to a program object.
-
-        prog = glCreateProgram();
-
-        if (vert) glAttachShader(prog, vert);
-        if (frag) glAttachShader(prog, frag);
-
-        // Link the program.
-
-        init_attributes(root);
-        glLinkProgram(prog);
-
-        bindable = !program_log(prog, path);
-
-        // Configure the program.
-
-        if (bindable)
+        if (app::node root = file.get_root().find("program"))
         {
-            bind();
+            const std::string vert_name = root.get_s("vert");
+            const std::string frag_name = root.get_s("frag");
+
+            discard = root.get_i("discard") ? true : false;
+
+            // Load the shader files.
+
+            const std::string vert_text = load(vert_name);
+            const std::string frag_text = load(frag_name);
+
+            // Compile the shaders.
+
+            vert = compile(GL_VERTEX_SHADER,   vert_name, vert_text);
+            frag = compile(GL_FRAGMENT_SHADER, frag_name, frag_text);
+
+            // Link the shader objects to a program object.
+
+            prog = glCreateProgram();
+
+            if (vert) glAttachShader(prog, vert);
+            if (frag) glAttachShader(prog, frag);
+
+            // Link the program.
+
+            init_attributes(root);
+            glLinkProgram(prog);
+
+            bindable = !program_log(prog, path);
+
+            // Configure the program.
+
+            if (bindable)
             {
-                init_textures (root);
-                init_processes(root);
-                init_uniforms (root);
+                bind();
+                {
+                    init_textures (root);
+                    init_processes(root);
+                    init_uniforms (root);
+                }
+                free();
+                prep();
             }
-            free();
-            prep();
         }
     }
 }
 
 void ogl::program::fini()
 {
-    uniform_map::iterator u;
-    process_map::iterator p;
+    if (ogl::context)
+    {
+        uniform_map::iterator u;
+        process_map::iterator p;
 
-    for (u =  uniforms.begin(); u !=  uniforms.end(); ++u)
-        ::glob->free_uniform(u->first);
+        for (u =  uniforms.begin(); u !=  uniforms.end(); ++u)
+            ::glob->free_uniform(u->first);
 
-    for (p = processes.begin(); p != processes.end(); ++p)
-        ::glob->free_process(p->first);
+        for (p = processes.begin(); p != processes.end(); ++p)
+            ::glob->free_process(p->first);
 
-    uniforms.clear();
-    processes.clear();
-    textures.clear();
+        uniforms.clear();
+        processes.clear();
+        textures.clear();
 
-    if (prog) glDeleteProgram(prog);
-    if (vert) glDeleteShader(vert);
-    if (frag) glDeleteShader(frag);
+        if (prog) glDeleteProgram(prog);
+        if (vert) glDeleteShader(vert);
+        if (frag) glDeleteShader(frag);
 
-    prog = 0;
-    vert = 0;
-    frag = 0;
+        prog = 0;
+        vert = 0;
+        frag = 0;
+    }
 }
 
 //-----------------------------------------------------------------------------

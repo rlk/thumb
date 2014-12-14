@@ -128,6 +128,8 @@ void app::prog::video_up()
 
 void app::prog::video_dn()
 {
+    ogl::fini();
+
     if (context) SDL_GL_DeleteContext(context);
     if (window)  SDL_DestroyWindow(window);
 
