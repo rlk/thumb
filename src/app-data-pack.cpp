@@ -12,6 +12,7 @@
 
 #include <stdint.h>
 #include <zlib.h>
+#include <png.h>
 
 #include <app-data-pack.hpp>
 #include <app-conf.hpp>
@@ -141,6 +142,21 @@ static int out(void *ptr, unsigned char *src, unsigned int len)
     return 0;
 }
 
+// We use both libpng and zlib, thus we must use the zlib compiled for use by
+// libpng. Unfortunately libpng uses an "embedded" build of zlib which doesn't
+// make use of system memory management. As libpng does not expose its own set
+// of memory management functions, we must provide our own.
+
+void *zalloc(void *opaque, uInt items, uInt size)
+{
+    return calloc(items, size);
+}
+
+void zfree(void *opaque, void *address)
+{
+    free(address);
+}
+
 app::pack_buffer::pack_buffer(const void *p)
 {
     const local_file_header *h = (const local_file_header *) p;
@@ -163,20 +179,22 @@ app::pack_buffer::pack_buffer(const void *p)
             unsigned char *p = ptr;
 
             z_stream z;
-            z.zalloc   = Z_NULL;
-            z.zfree    = Z_NULL;
-            z.opaque   = Z_NULL;
-            z.next_in  = (Bytef *) dat;
-            z.avail_in = h->sizeof_compressed;
+
+            memset(&z, 0, sizeof (z_stream));
+
+            z.zalloc = zalloc;
+            z.zfree  = zfree;
+            z.opaque = Z_NULL;
 
             int e = Z_OK;
 
             if ((e = inflateBackInit(&z, 15, win)) == Z_OK)
             {
-                if ((e = inflateBack(&z, 0, 0, out, &p)) == Z_STREAM_END)
-                {
-                    e = inflateBackEnd(&z);
-                }
+                z.next_in  = (Bytef *) dat;
+                z.avail_in = h->sizeof_compressed;
+
+                e = inflateBack(&z, 0, 0, out, &p);
+                e = inflateBackEnd(&z);
             }
 
             if (e != Z_OK)
