@@ -37,12 +37,17 @@ wrl::solid::solid(app::node node, std::string _fill_name,
 wrl::sphere::sphere(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_sphere.obj"), radius(0)
 {
-    const vec3 a = fill->get_bound().min();
-    const vec3 b = fill->get_bound().max();
+    if (fill)
+    {
+        const vec3 a = fill->get_bound().min();
+        const vec3 b = fill->get_bound().max();
 
-    radius = std::max(radius, std::max(fabs(a[0]), fabs(b[0])));
-    radius = std::max(radius, std::max(fabs(a[1]), fabs(b[1])));
-    radius = std::max(radius, std::max(fabs(a[2]), fabs(b[2])));
+        radius = std::max(radius, std::max(fabs(a[0]), fabs(b[0])));
+        radius = std::max(radius, std::max(fabs(a[1]), fabs(b[1])));
+        radius = std::max(radius, std::max(fabs(a[2]), fabs(b[2])));
+    }
+    else
+        radius = 0.5;
 
     line_scale = vec3(radius, radius, radius);
 
