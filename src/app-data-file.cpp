@@ -63,8 +63,8 @@ app::file_buffer::file_buffer(std::string name)
 
 //-----------------------------------------------------------------------------
 
-app::file_archive::file_archive(std::string path, bool writable)
-    : path(path), writable(writable)
+app::file_archive::file_archive(std::string path, bool writable, int prio)
+    : archive(prio), path(path), writable(writable)
 {
 }
 

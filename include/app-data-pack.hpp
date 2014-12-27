@@ -33,7 +33,7 @@ namespace app
     {
     public:
 
-        pack_archive(const void *ptr, size_t len) : ptr(ptr), len(len) { }
+        pack_archive(const void *ptr, size_t len, int p=0);
 
         virtual bool     find(std::string)                         const;
         virtual buffer_p load(std::string)                         const;

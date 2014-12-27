@@ -207,6 +207,11 @@ app::pack_buffer::pack_buffer(const void *p)
 
 //-----------------------------------------------------------------------------
 
+app::pack_archive::pack_archive(const void *ptr, size_t len, int p)
+    : archive(p), ptr(ptr), len(len)
+{
+}
+
 // Determine whether the named file exists within this archive.
 
 bool app::pack_archive::find(std::string name) const

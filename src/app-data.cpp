@@ -99,10 +99,32 @@ static bool is_data_dir(std::string dir)
 }
 #endif
 
-// Locate all read-only data hierarchies.
-
-static void find_ro_data(app::archive_l& archives)
+app::data::data(const std::string& filename) : filename(filename), file("")
 {
+    int rwprio = 10;
+    int roprio = 30;
+
+    // Check for a home directory.
+
+    if (char *home = getenv("HOME"))
+        add_file_archive(std::string(home) + "/.thumb", true, 0);
+
+    // Check for an AppData directory.
+
+    if (char *appdata = getenv("APPDATA"))
+        add_file_archive(std::string(appdata) + "/Thumb", true, rwprio++);
+
+    // Iterate the read-write path environment variable.
+
+    if (char *val = getenv("THUMB_RW_PATH"))
+    {
+        std::stringstream list(val);
+        std::string       path;
+
+        while (std::getline(list, path, PATH_LIST_SEP))
+            add_file_archive(path, true, rwprio++);
+    }
+
     // Iterate the read-only path environment variable.
 
     if (char *val = getenv("THUMB_RO_PATH"))
@@ -111,67 +133,25 @@ static void find_ro_data(app::archive_l& archives)
         std::string       path;
 
         while (std::getline(list, path, PATH_LIST_SEP))
-            archives.push_back(new app::file_archive(path, false));
+            add_file_archive(path, false, roprio++);
     }
 
     // Look to the static archive.
 
-    extern unsigned char ___data_data_zip[];
-    extern unsigned int  ___data_data_zip_len;
+    extern unsigned char thumb_data_zip[];
+    extern unsigned int  thumb_data_zip_len;
 
-    archives.push_back(new app::pack_archive(___data_data_zip,
-                                             ___data_data_zip_len));
-}
-
-// Locate a writable data hierarchy.
-
-static void find_rw_data(app::archive_l& archives)
-{
-    // Iterate the read-write path environment variable.
-
-    if (char *val = getenv("THUMB_RW_PATH"))
-    {
-        std::stringstream list(val);
-        std::string       path;
-
-        while (std::getline(list, path, ':'))
-            archives.push_back(new app::file_archive(path, true));
-    }
-
-    // Check for a home directory.
-
-    if (char *home = getenv("HOME"))
-    {
-        const std::string path = std::string(home) + "/.thumb";
-        archives.push_back(new app::file_archive(path, true));
-    }
-
-    // Check for an AppData directory.
-
-    if (char *appdata = getenv("APPDATA"))
-    {
-        const std::string path = std::string(appdata) + "/Thumb";
-        archives.push_back(new app::file_archive(path, true));
-    }
+    archives.insert(new app::pack_archive(thumb_data_zip,
+                                          thumb_data_zip_len, 100));
 
     // Fall back on the file system.
 
-    archives.push_back(new app::file_archive("", true));
-}
-
-//-----------------------------------------------------------------------------
-
-app::data::data(const std::string& filename) : filename(filename), file("")
-{
-    find_rw_data(archives);
-    find_ro_data(archives);
+    archives.insert(new app::file_archive("", true, 0));
 }
 
 app::data::~data()
 {
-    std::list<archive_p>::iterator i;
-
-    for (i = archives.begin(); i != archives.end(); ++i)
+    for (archive_i i = archives.begin(); i != archives.end(); ++i)
         delete *i;
 }
 
@@ -183,11 +163,18 @@ void app::data::init()
         file = app::file(filename);
 }
 
+// Add an additional filesystem path.
+
+void app::data::add_file_archive(const std::string& path, bool rw, int prio)
+{
+    archives.insert(new app::file_archive(path, rw, prio));
+}
+
 // Add an additional in-memory pack archive.
 
-void app::data::add_pack_archive(const void *ptr, size_t len)
+void app::data::add_pack_archive(const void *ptr, size_t len, int prio)
 {
-    archives.push_back(new app::pack_archive(ptr, len));
+    archives.insert(new app::pack_archive(ptr, len, prio));
 }
 
 // Return a buffer containing the named data file.

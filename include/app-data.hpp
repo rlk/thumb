@@ -116,19 +116,32 @@ namespace app
     {
     public:
 
+        archive(int p=0) : priority(p) { }
+
         virtual bool     find(std::string)                         const = 0;
         virtual buffer_p load(std::string)                         const = 0;
         virtual bool     save(std::string, const void *, size_t *) const = 0;
         virtual void     list(std::string, str_set&, str_set&)     const = 0;
 
         virtual ~archive() { }
+
+        const int priority;
     };
 
-    typedef archive                             *archive_p;
-    typedef std::list<archive_p>                 archive_l;
-    typedef std::list<archive_p>::iterator       archive_i;
-    typedef std::list<archive_p>::const_iterator archive_c;
+    typedef archive *archive_p;
 
+    struct archive_lt
+    {
+        bool operator()(const archive_p a, const archive_p b) const
+        {
+            return (a->priority < b->priority);
+        }
+    };
+
+    typedef std::set<archive_p, archive_lt>                 archive_l;
+    typedef std::set<archive_p, archive_lt>::iterator       archive_i;
+    typedef std::set<archive_p, archive_lt>::const_iterator archive_c;
+    
     //-------------------------------------------------------------------------
     // Data manager
 
@@ -148,7 +161,9 @@ namespace app
        ~data();
 
         void init();
-        void add_pack_archive(const void *, size_t);
+
+        void add_file_archive(const std::string&, bool, int=0);
+        void add_pack_archive(const void *, size_t, int=50);
 
         const void *load(const std::string&,               size_t * = 0);
         bool        save(const std::string&, const void *, size_t * = 0);
