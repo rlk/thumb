@@ -1,0 +1,128 @@
+# thumb.lib -- Visual Studio Makefile
+
+LOCAL_INCLUDE = C:\Include
+
+#------------------------------------------------------------------------------
+
+CFLAGS = /nologo /W3 /EHsc /Z7 /Od /MTd \
+	/DdDOUBLE \
+	/DGLEW_STATIC \
+	/D_CRT_SECURE_NO_WARNINGS \
+	/D_CRT_NONSTDC_NO_DEPRECATE \
+	/D_USE_MATH_DEFINES \
+	/DHAVE_M_PI \
+	/DNOMINMAX \
+	/DWIN32 \
+	/D_DEBUG \
+	/D_LIB
+
+LINK = lib /nologo
+
+#------------------------------------------------------------------------------
+
+TARG= thumb.lib
+
+OBJS = \
+	app-data-file.obj \
+	app-data-pack.obj \
+	app-data.obj \
+	app-event.obj \
+	app-file.obj \
+	app-font.obj \
+	app-frustum.obj \
+	app-glob.obj \
+	app-host.obj \
+	app-lang.obj \
+	app-perf.obj \
+	app-prog.obj \
+	app-view.obj \
+	dev-gamepad.obj \
+	dev-hybrid.obj \
+	dev-mouse.obj \
+	dev-sixense.obj \
+	dev-skeleton.obj \
+	dpy-anaglyph.obj \
+	dpy-channel.obj \
+	dpy-direct.obj \
+	dpy-display.obj \
+	dpy-fulldome.obj \
+	dpy-interlace.obj \
+	dpy-lenticular.obj \
+	dpy-normal.obj \
+	dpy-oculus.obj \
+	etc-dir.obj \
+	etc-log.obj \
+	etc-ode.obj \
+	gui-control.obj \
+	gui-gui.obj \
+	mode-edit.obj \
+	mode-info.obj \
+	mode-mode.obj \
+	mode-play.obj \
+	ogl-aabb.obj \
+	ogl-binding.obj \
+	ogl-buffer.obj \
+	ogl-convex.obj \
+	ogl-cookie.obj \
+	ogl-cubelut.obj \
+	ogl-d-omega.obj \
+	ogl-frame.obj \
+	ogl-image.obj \
+	ogl-irradiance-env.obj \
+	ogl-lut.obj \
+	ogl-mesh.obj \
+	ogl-mirror.obj \
+	ogl-obj.obj \
+	ogl-opengl.obj \
+	ogl-pool.obj \
+	ogl-process.obj \
+	ogl-program.obj \
+	ogl-range.obj \
+	ogl-reflection-env.obj \
+	ogl-sh-basis.obj \
+	ogl-shadow.obj \
+	ogl-sprite.obj \
+	ogl-texture.obj \
+	ogl-uniform.obj \
+	wrl-atom.obj \
+	wrl-constraint.obj \
+	wrl-joint.obj \
+	wrl-light.obj \
+	wrl-operation.obj \
+	wrl-param.obj \
+	wrl-solid.obj \
+	wrl-world.obj \
+	zip-data.obj
+
+CPPFLAGS = $(CFLAGS) \
+	/I$(LOCAL_INCLUDE)\freetype2 \
+	/I$(LOCAL_INCLUDE)\SDL2 \
+	/I$(LOCAL_INCLUDE) \
+	/I..\include
+
+$(TARG) : $(OBJS)
+	$(LINK) /out:$(TARG) $(OBJS)
+
+#------------------------------------------------------------------------------
+
+# Compile the bin2c tool, which helps embed binary data in C sources.
+
+B2C = ..\etc\bin2c.exe
+
+$(B2C) : ..\etc\bin2c.c
+	$(CC) /nologo /Fe$(B2C) ..\etc\bin2c.c
+
+#------------------------------------------------------------------------------
+
+zip-data.cpp : ..\data\data.zip $(B2C)
+	$(B2C) thumb_data < ..\data\data.zip > zip-data.cpp
+
+..\data\data.zip :
+	cd ..\data
+	$(MAKE) /f Makefile.vc
+	cd ..\src
+
+#------------------------------------------------------------------------------
+
+clean:
+	-del $(TARG) $(OBJS) $(B2C)
