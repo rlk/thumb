@@ -1,0 +1,12 @@
+
+
+all:
+	cd src
+	$(MAKE) /nologo /f Makefile.vc
+	cd..
+
+clean:
+	cd src
+	$(MAKE) /nologo /f Makefile.vc clean
+	cd..
+

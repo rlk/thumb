@@ -123,7 +123,7 @@ zip-data.cpp : ..\data\data.zip $(B2C)
 
 ..\data\data.zip :
 	cd ..\data
-	$(MAKE) /f Makefile.vc
+	$(MAKE) /nologo /f Makefile.vc
 	cd ..\src
 
 #------------------------------------------------------------------------------
