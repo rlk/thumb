@@ -35,6 +35,7 @@ OBJS=	app-data.o \
 	dpy-normal.o \
 	dpy-oculus.o \
 	etc-dir.o \
+	etc-log.o \
 	etc-ode.o \
 	gui-control.o \
 	gui-gui.o \
