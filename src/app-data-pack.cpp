@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <zlib.h>
 #include <png.h>
 
