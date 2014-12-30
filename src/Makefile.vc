@@ -14,17 +14,18 @@ CPPFLAGS = /nologo /W3 /EHsc \
 	/DNOMINMAX \
 	/DWIN32
 
+LINK     = lib /nologo
+TARGET   = thumb.lib
+
 !ifdef DEBUG
+CONFIG   = Debug
 CPPFLAGS = $(CPPFLAGS) /Od /MTd /Z7
 !else
+CONFIG   = Release
 CPPFLAGS = $(CPPFLAGS) /Ox /MT
 !endif
 
-LINK = lib /nologo
-
 #------------------------------------------------------------------------------
-
-TARG= thumb.lib
 
 OBJS = \
 	app-data-file.obj \
@@ -104,8 +105,8 @@ CPPFLAGS = $(CPPFLAGS) \
 	/I$(LOCAL_INCLUDE) \
 	/I..\include
 
-$(TARG) : $(OBJS)
-	$(LINK) /out:$(TARG) $(OBJS)
+$(TARGET) : $(OBJS)
+	$(LINK) /out:..\$(CONFIG)\$(TARGET) $(OBJS)
 
 #------------------------------------------------------------------------------
 
@@ -129,4 +130,4 @@ zip-data.cpp : ..\data\data.zip $(B2C)
 #------------------------------------------------------------------------------
 
 clean:
-	-del $(TARG) $(OBJS) $(B2C)
+	-del $(TARGET) $(OBJS) $(B2C)

@@ -37,13 +37,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeBuildCommandLine>nmake /nologo /f Makefile.vc DEBUG=1</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake /nologo /f Makefile.vc clean</NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>nmake /nologo /f Makefile.vc DEBUG=1 clean</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>C:\Include\freetype2;C:\Include\SDL2;C:\Include</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>nmake /nologo /f Makefile.vc</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake /nologo /f Makefile.vc clean</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>C:\Include\freetype2;C:\Include\SDL2;C:\Include</NMakeIncludeSearchPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
