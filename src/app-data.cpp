@@ -138,11 +138,11 @@ app::data::data(const std::string& filename) : filename(filename), file("")
 
     // Look to the static archive.
 
-    extern unsigned char thumb_data_zip[];
-    extern unsigned int  thumb_data_zip_len;
+    extern unsigned char thumb_data[];
+    extern unsigned int  thumb_data_len;
 
-    archives.insert(new app::pack_archive(thumb_data_zip,
-                                          thumb_data_zip_len, 100));
+    archives.insert(new app::pack_archive(thumb_data,
+                                          thumb_data_len, 100));
 
     // Fall back on the file system.
 
