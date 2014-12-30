@@ -5,3 +5,7 @@ data/data.zip
 src/libthumb.a
 src/libthumb.so
 src/libthumb.dylib
+src/thumb.lib
+src/*.obj
+etc/*.obj
+etc/*.exe
