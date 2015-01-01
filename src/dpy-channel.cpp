@@ -14,8 +14,9 @@
 
 #include <etc-vector.hpp>
 #include <app-default.hpp>
-#include <app-glob.hpp>
 #include <app-conf.hpp>
+#include <app-glob.hpp>
+#include <app-host.hpp>
 #include <app-event.hpp>
 #include <ogl-frame.hpp>
 #include <ogl-program.hpp>
@@ -38,7 +39,8 @@ ogl::frame *dpy::channel::pong = 0;
 
 //-----------------------------------------------------------------------------
 
-dpy::channel::channel(app::node n) : src(0), dst(0)
+dpy::channel::channel(app::node n, int default_size[2])
+    : src(0), dst(0)
 {
     const std::string unit = n.get_s("unit");
 
@@ -55,8 +57,8 @@ dpy::channel::channel(app::node n) : src(0), dst(0)
     c[2] = GLubyte(n.get_f("b", 1.0) * 0xFF);
     c[3] = GLubyte(n.get_f("a", 1.0) * 0xFF);
 
-    w = n.get_i("w", DEFAULT_PIXEL_WIDTH);
-    h = n.get_i("h", DEFAULT_PIXEL_HEIGHT);
+    w = n.get_i("w", default_size[0]);
+    h = n.get_i("h", default_size[1]);
 
     // Optionally compute X from the inter-pupilary distance.
 

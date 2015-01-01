@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <etc-vector.hpp>
+#include <app-default.hpp>
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
@@ -39,7 +40,7 @@ namespace dpy
     {
     public:
 
-        channel(app::node);
+        channel(app::node, int[2]);
        ~channel();
 
         // Accessors

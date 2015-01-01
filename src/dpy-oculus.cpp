@@ -27,17 +27,65 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::oculus::oculus(app::node p) : display(p), hmd(0), setup(false)
-{
-    frust[0] = 0;
-    frust[1] = 0;
+/// Convert an OVR matrix to a thumb matrix.
 
+static mat4 getMatrix4f(const OVR::Matrix4f& m)
+{
+    return mat4(m.M[0][0], m.M[0][1], m.M[0][2], m.M[0][3],
+                m.M[1][0], m.M[1][1], m.M[1][2], m.M[1][3],
+                m.M[2][0], m.M[2][1], m.M[2][2], m.M[2][3],
+                m.M[3][0], m.M[3][1], m.M[3][2], m.M[3][3]);
+}
+
+//-----------------------------------------------------------------------------
+
+dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
+    : display(p), hmd(0), setup(false)
+{
+    ovr_Initialize();
+
+    // Use the first connected HMD.
+
+    hmd = ovrHmd_Create(0);
+
+    // Fall back on a DK1 debug configuration if no HMD is available.
+
+    if (hmd == 0)
+        hmd = ovrHmd_CreateDebug(ovrHmd_DK1);
+    
+    if (hmd)
+    {
+        // Enable all tracking capabilities on this HMD.
+
+        ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation |
+                                      ovrTrackingCap_MagYawCorrection |
+                                      ovrTrackingCap_Position, 0);
+
+        // Override the window configuration .
+        
+        window_rect[0] = hmd->WindowsPos.x;
+        window_rect[1] = hmd->WindowsPos.y;
+        window_rect[2] = hmd->Resolution.w;
+        window_rect[3] = hmd->Resolution.h;
+
+        // Determine the buffer size required by each eye of the current HMD.
+
+        ovrSizei sz0 = ovrHmd_GetFovTextureSize(hmd, ovrEye_Left,
+                                                hmd->DefaultEyeFov[0], 1);
+        ovrSizei sz1 = ovrHmd_GetFovTextureSize(hmd, ovrEye_Right,
+                                                hmd->DefaultEyeFov[1], 1);
+
+        buffer_size[0] = std::max(sz0.w, sz1.w);
+        buffer_size[1] = std::max(sz0.h, sz1.h);
+    }
     memset(tex, 0, 2 * sizeof (ovrTexture));
 }
 
 dpy::oculus::~oculus()
 {
-    ::view->set_tracking(mat4());
+    if (hmd) ovrHmd_Destroy(hmd);
+
+    ovr_Shutdown();
 }
 
 //-----------------------------------------------------------------------------
@@ -57,16 +105,6 @@ void dpy::oculus::get_frusv(app::frustum **frusv) const
 }
 
 //-----------------------------------------------------------------------------
-
-/// Convert an OVR matrix to a GLFundamentals matrix.
-
-static mat4 getMatrix4f(const OVR::Matrix4f& m)
-{
-    return mat4(m.M[0][0], m.M[0][1], m.M[0][2], m.M[0][3],
-                m.M[1][0], m.M[1][1], m.M[1][2], m.M[1][3],
-                m.M[2][0], m.M[2][1], m.M[2][2], m.M[2][3],
-                m.M[3][0], m.M[3][1], m.M[3][2], m.M[3][3]);
-}
 
 void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 {
@@ -170,24 +208,6 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 
 bool dpy::oculus::process_start(app::event *E)
 {
-    ovr_Initialize();
-
-    // Use the first connected HMD.
-
-    hmd = ovrHmd_Create(0);
-
-    // Fall back on a DK1 debug configuration if no HMD is available.
-
-    if (hmd == 0)
-        hmd = ovrHmd_CreateDebug(ovrHmd_DK1);
-
-    // Enable all tracking capabilities on this HMD.
-
-    if (hmd)
-        ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation |
-                                      ovrTrackingCap_MagYawCorrection |
-                                      ovrTrackingCap_Position, 0);
-
     // Configure the renderer. Zeroing the configuration stucture causes all
     // display, window, and device specifications to take on current values
     // as put in place by SDL. This should work cross-platform (but doesn't).
@@ -205,8 +225,8 @@ bool dpy::oculus::process_start(app::event *E)
     // Set the configuration and receive eye render descriptors in return.
 
     ovrHmd_ConfigureRendering(hmd, &cfg.Config, ovrDistortionCap_Chromatic
-                                              | ovrDistortionCap_TimeWarp
-                                              | ovrDistortionCap_Overdrive,
+                                                | ovrDistortionCap_TimeWarp
+                                                | ovrDistortionCap_Overdrive,
                                                 hmd->DefaultEyeFov, erd);
 
     offset[0] = erd[0].HmdToEyeViewOffset;
@@ -214,11 +234,11 @@ bool dpy::oculus::process_start(app::event *E)
 
     // Configure the projections.
 
-    mat4 P0 = getMatrix4f(ovrMatrix4f_Projection(erd[0].Fov, 1.0f, 100.0f, true));
-    mat4 P1 = getMatrix4f(ovrMatrix4f_Projection(erd[1].Fov, 1.0f, 100.0f, true));
+    ovrMatrix4f P0 = ovrMatrix4f_Projection(erd[0].Fov, 1.f, 10.f, true);
+    ovrMatrix4f P1 = ovrMatrix4f_Projection(erd[1].Fov, 1.f, 10.f, true);
 
-    frust[0] = new app::perspective_frustum(P0);
-    frust[1] = new app::perspective_frustum(P1);
+    frust[0] = new app::perspective_frustum(getMatrix4f(P0));
+    frust[1] = new app::perspective_frustum(getMatrix4f(P1));
 
     return false;
 }
@@ -227,10 +247,6 @@ bool dpy::oculus::process_close(app::event *E)
 {
     if (frust[0]) delete frust[0];
     if (frust[1]) delete frust[1];
-
-    if (hmd) ovrHmd_Destroy(hmd);
-
-    ovr_Shutdown();
 
     frust[0] = 0;
     frust[1] = 0;

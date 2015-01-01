@@ -35,7 +35,7 @@ namespace dpy
     {
     public:
 
-        oculus(app::node);
+        oculus(app::node, int[4], int[2]);
 
         virtual ~oculus();
 

@@ -154,7 +154,7 @@ app::host::host(app::prog *p, std::string filename,
                     displays.push_back(new dpy::normal    (c));
 #ifdef CONFIG_OCULUS
                 else if (t == "oculus")
-                    displays.push_back(new dpy::oculus    (c));
+                    displays.push_back(new dpy::oculus(c, window_rect, buffer_size));
 #endif
                 else
                     displays.push_back(new dpy::direct    (c));
@@ -164,13 +164,13 @@ app::host::host(app::prog *p, std::string filename,
 
             if (channels.empty())
                 for (c = n.find("channel"); c; c = n.next(c, "channel"))
-                    channels.push_back(new dpy::channel(c));
+                    channels.push_back(new dpy::channel(c, buffer_size));
 
             // If there are no locally-defined channels, check the root.
 
             if (channels.empty())
                 for (c = p.find("channel"); c; c = p.next(c, "channel"))
-                    channels.push_back(new dpy::channel(c));
+                    channels.push_back(new dpy::channel(c, buffer_size));
 
             // Determine the locally-defined overlay area.
 
@@ -197,7 +197,7 @@ app::host::host(app::prog *p, std::string filename,
 
     // If no channel or display was configured, instance defaults.
 
-    if (channels.empty()) channels.push_back(new dpy::channel(0));
+    if (channels.empty()) channels.push_back(new dpy::channel(0, buffer_size));
     if (displays.empty()) displays.push_back(new dpy::direct (0));
 
     // Wait until all clients have connected.
