@@ -46,9 +46,11 @@ namespace dpy
 
         void set_head(const vec3&, const quat&);
 
-        vec3 get_eye()    const { return p; }
-        int  get_width()  const { return w; }
-        int  get_height() const { return h; }
+        vec3   get_eye()    const { return p; }
+        int    get_width()  const { return w; }
+        int    get_height() const { return h; }
+        GLuint get_color()  const;
+        GLuint get_depth()  const;
 
         // Rendering methods
 

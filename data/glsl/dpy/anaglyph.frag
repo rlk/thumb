@@ -1,19 +1,12 @@
-#extension GL_ARB_texture_rectangle : enable
-
-uniform sampler2DRect L_map;
-uniform sampler2DRect R_map;
-
-uniform vec2 frag_k;
-uniform vec2 frag_d;
+uniform sampler2D L_map;
+uniform sampler2D R_map;
 
 uniform vec4 luma;
 
 void main()
 {
-    vec2 p = gl_FragCoord.xy * frag_k + frag_d;
-
-    vec4 L = texture2DRect(L_map, p);
-    vec4 R = texture2DRect(R_map, p);
+    vec4 L = texture2D(L_map, gl_TexCoord[0].st);
+    vec4 R = texture2D(R_map, gl_TexCoord[0].st);
 
     float l = 1.0 * dot(L, luma);
     float r = 1.0 * dot(R, luma) * 0.3 / 0.7;

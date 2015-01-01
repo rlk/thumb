@@ -61,10 +61,11 @@ app::host::host(app::prog *p, std::string filename,
     bench(::conf->get_i("bench")),
     movie(::conf->get_i("movie")),
     count(0),
+    swapped(false),
     calibration_state(false),
     calibration_index(0),
     device(0),
-    distance(0),
+//  distance(0),
     overlay(0),
     program(p),
     render(0),
@@ -151,7 +152,7 @@ app::host::host(app::prog *p, std::string filename,
                     displays.push_back(new dpy::lenticular(c));
                 else if (t == "normal")
                     displays.push_back(new dpy::normal    (c));
-#ifdef WITH_OCULUS
+#ifdef CONFIG_OCULUS
                 else if (t == "oculus")
                     displays.push_back(new dpy::oculus    (c));
 #endif
@@ -626,8 +627,12 @@ void app::host::root_loop()
 #endif
             // Call the render handler.
 
+            swapped = false;
+
             process_event(E.mk_draw());
-            process_event(E.mk_swap());
+
+            if (swapped == false)
+                process_event(E.mk_swap());
 
             ::perf->step(false);
 
@@ -655,7 +660,6 @@ void app::host::root_loop()
                         program->screenshot(std::string(buf),
                                             get_window_w(),
                                             get_window_h());
-
                 }
             }
         }
@@ -729,11 +733,6 @@ void app::host::draw()
 
     if (render)
         render->bind();
-
-    // Clear the entire window.
-
-    glClear(GL_COLOR_BUFFER_BIT |
-            GL_DEPTH_BUFFER_BIT);
 
     // Render all displays (probably very expensive).
 
@@ -858,11 +857,12 @@ void app::host::process_start(event *E)
 
     // Make a list of all display frustums.
 
-    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
-    {
-                 (*i)->get_frusv(&frustums[frusi]);
-        frusi += (*i)->get_frusc();
-    }
+    if (frusc)
+        for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        {
+                     (*i)->get_frusv(&frustums[frusi]);
+            frusi += (*i)->get_frusc();
+        }
 
     // Start the timer.
 
@@ -956,6 +956,13 @@ void app::host::set_head(const vec3& p, const quat& q)
 {
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         (*i)->set_head(p, q);
+}
+
+// Some display devices automatically swap the buffers. Let them declare this.
+
+void app::host::set_swap()
+{
+    swapped = true;
 }
 
 quat app::host::get_orientation() const

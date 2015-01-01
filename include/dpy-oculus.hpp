@@ -12,9 +12,10 @@
 
 #ifndef DPY_OCULUS_HPP
 #define DPY_OCULUS_HPP
-#ifdef WITH_OCULUS
+#ifdef CONFIG_OCULUS
 
 #include <OVR.h>
+#include <OVR_CAPI_GL.h>
 
 #include <dpy-display.hpp>
 #include <app-file.hpp>
@@ -30,30 +31,6 @@ namespace ogl
 
 namespace dpy
 {
-    class oculus_api
-    {
-    public:
-        oculus_api();
-       ~oculus_api();
-    };
-
-    class oculus_dev
-    {
-    public:
-
-        oculus_api api;
-
-        OVR::Ptr<OVR::DeviceManager> pManager;
-        OVR::Ptr<OVR::HMDDevice>     pHMD;
-        OVR::Ptr<OVR::SensorDevice>  pSensor;
-
-        OVR::SensorFusion Fusion;
-        OVR::HMDInfo      Info;
-
-        oculus_dev();
-       ~oculus_dev();
-    };
-
     class oculus : public display
     {
     public:
@@ -67,7 +44,7 @@ namespace dpy
         virtual int  get_frusc()                const;
         virtual void get_frusv(app::frustum **) const;
 
-        virtual app::frustum *get_overlay() const { return frust; }
+        virtual app::frustum *get_overlay() const { return 0; } //frust[0]; }
 
         // Rendering handlers
 
@@ -82,23 +59,18 @@ namespace dpy
 
     private:
 
-        static oculus_dev *device;
+        bool setup;
 
-        OVR::Util::Render::StereoConfig Stereo;
-
-        app::frustum *frust;
-        int           chani;
-
-        const ogl::program *program;
-
-        vec2 LensCenter;
-        vec4 DistortionK;
-        vec4 ChromaAbCorrection;
-        vec2 ScaleIn;
-        vec2 ScaleOut;
+        ovrHmd          hmd;
+        ovrVector3f  offset[2];
+        ovrPosef       pose[2];
+        ovrTexture      tex[2];
+        app::frustum *frust[2];
 
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);
+
+        void dismiss_warning();
     };
 }
 

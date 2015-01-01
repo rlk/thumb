@@ -78,8 +78,10 @@ namespace ogl
         virtual void fini();
         virtual void draw();
 
-        GLsizei get_w() const { return w; }
-        GLsizei get_h() const { return h; }
+        GLsizei get_w()     const { return w; }
+        GLsizei get_h()     const { return h; }
+        GLuint  get_color() const { return color; }
+        GLuint  get_depth() const { return depth; }
     };
 }
 

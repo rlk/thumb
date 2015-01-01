@@ -80,6 +80,18 @@ void dpy::channel::set_head(const vec3& p, const quat& q)
 
 //-----------------------------------------------------------------------------
 
+GLuint dpy::channel::get_color() const
+{
+    assert(src);
+    return src->get_color();
+}
+
+GLuint dpy::channel::get_depth() const
+{
+    assert(src);
+    return src->get_depth();
+}
+
 void dpy::channel::test() const
 {
     // Clear the bound buffer to the calibration color.
@@ -291,22 +303,22 @@ void dpy::channel::process_start()
 
         // Initialize the off-screen render target.
 
-        src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE,
+        src = ::glob->new_frame(w, h, GL_TEXTURE_2D,
                                 GL_RGBA16F, true, true,  false);
 
-        dst = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE,
+        dst = ::glob->new_frame(w, h, GL_TEXTURE_2D,
                                 GL_RGBA8,   true, false, false);
 
         // Initialize the static ping-pong buffers, if necessary.
 
         if (blur == 0)
-            blur = ::glob->new_frame(w4, h4, GL_TEXTURE_RECTANGLE,
+            blur = ::glob->new_frame(w4, h4, GL_TEXTURE_2D,
                                      GL_RGBA16F, true, false, false);
         if (ping == 0)
-            ping = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE,
+            ping = ::glob->new_frame(w2, h2, GL_TEXTURE_2D,
                                      GL_RGBA16F, true, false, false);
         if (pong == 0)
-            pong = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE,
+            pong = ::glob->new_frame(w2, h2, GL_TEXTURE_2D,
                                      GL_RGBA16F, true, false, false);
 
         // Initialize the static programs, if necessary.
@@ -328,7 +340,7 @@ void dpy::channel::process_start()
     {
         // Initialize the off-screen render target.
 
-        src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE,
+        src = ::glob->new_frame(w, h, GL_TEXTURE_2D,
                                 GL_RGB8, true, true, false);
     }
 }

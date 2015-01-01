@@ -31,6 +31,7 @@ DATA = \
 	config/stereoscopic/oculus-1440-fullscreen.xml \
 	config/stereoscopic/oculus-DK1-fullscreen.xml \
 	config/stereoscopic/oculus-DK1-window.xml \
+	config/stereoscopic/oculus-DK2.xml \
 	config/stereoscopic/planar2x2.xml \
 	data.xml \
 	glsl/contour.frag \
@@ -212,3 +213,6 @@ DATA = \
 
 data.zip : $(DATA)
 	$(ZIP) data.zip $(DATA)
+
+clean :
+	-del data.zip

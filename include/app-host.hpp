@@ -76,6 +76,7 @@ namespace app
         const app::frustum *get_overlay() const;
 
         void set_head(const vec3&, const quat&);
+        void set_swap();
 
         quat get_orientation() const;
         void set_orientation(const quat&);
@@ -129,6 +130,7 @@ namespace app
         int    bench;
         int    movie;
         int    count;
+        bool   swapped;
 
         // Event/Calibration handlers
 

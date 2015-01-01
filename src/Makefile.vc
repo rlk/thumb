@@ -1,10 +1,12 @@
 # thumb.lib -- Visual Studio Makefile
 
 LOCAL_INCLUDE = C:\Include
+LIBOVR        = C:\OculusSDK\LibOVR
 
 #------------------------------------------------------------------------------
 
 CPPFLAGS = /nologo /W3 /EHsc \
+	/DCONFIG_OCULUS \
 	/DdDOUBLE \
 	/DGLEW_STATIC \
 	/D_CRT_SECURE_NO_WARNINGS \
@@ -100,6 +102,8 @@ OBJS = \
 	zip-data.obj
 
 CPPFLAGS = $(CPPFLAGS) \
+	/I$(LIBOVR)\Include \
+	/I$(LIBOVR)\Src \
 	/I$(LOCAL_INCLUDE)\freetype2 \
 	/I$(LOCAL_INCLUDE)\SDL2 \
 	/I$(LOCAL_INCLUDE) \
@@ -121,11 +125,6 @@ $(B2C) : ..\etc\bin2c.c
 
 zip-data.cpp : ..\data\data.zip $(B2C)
 	$(B2C) thumb_data < ..\data\data.zip > zip-data.cpp
-
-..\data\data.zip :
-	cd ..\data
-	$(MAKE) /nologo /f Makefile.vc
-	cd ..\src
 
 #------------------------------------------------------------------------------
 

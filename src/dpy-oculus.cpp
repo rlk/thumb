@@ -10,11 +10,12 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifdef WITH_OCULUS
+#ifdef CONFIG_OCULUS
 
 #include <cassert>
 
 #include <etc-vector.hpp>
+#include <etc-log.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
 #include <app-view.hpp>
@@ -26,323 +27,214 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::oculus_api::oculus_api()
+dpy::oculus::oculus(app::node p) : display(p), hmd(0), setup(false)
 {
-    OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-}
+    frust[0] = 0;
+    frust[1] = 0;
 
-dpy::oculus_api::~oculus_api()
-{
-    OVR::System::Destroy();
-}
-
-dpy::oculus_dev::oculus_dev() : api()
-{
-    // Set default HMD info for a 7" OVR DK1 in case OVR fails.
-
-    Info.DesktopX               =  0;
-    Info.DesktopY               =  0;
-    Info.HResolution            =  1280;
-    Info.VResolution            =  800;
-
-    Info.HScreenSize            =  0.14976f;
-    Info.VScreenSize            =  0.09350f;
-    Info.InterpupillaryDistance =  0.0604f;
-    Info.LensSeparationDistance =  0.0635f;
-    Info.EyeToScreenDistance    =  0.0410f;
-    Info.VScreenCenter          =  Info.VScreenSize * 0.5f;
-
-    Info.DistortionK[0]         =  1.00f;
-    Info.DistortionK[1]         =  0.22f;
-    Info.DistortionK[2]         =  0.24f;
-    Info.DistortionK[3]         =  0.00f;
-
-    Info.ChromaAbCorrection[0]  =  0.996f;
-    Info.ChromaAbCorrection[1]  = -0.004f;
-    Info.ChromaAbCorrection[2]  =  1.014f;
-    Info.ChromaAbCorrection[3]  =  0.000f;
-
-    // Initialize the HMD and sensor.
-
-    if ((pManager = *OVR::DeviceManager::Create()))
-    {
-        if ((pHMD = *pManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice()))
-        {
-            if ((pSensor = *pHMD->GetSensor()))
-            {
-                Fusion.AttachToSensor(pSensor);
-            }
-            pHMD->GetDeviceInfo(&Info);
-        }
-    }
-}
-dpy::oculus_dev::~oculus_dev()
-{
-    Fusion.AttachToSensor(0);
-
-    pSensor  = 0;
-    pHMD     = 0;
-    pManager = 0;
-}
-
-//-----------------------------------------------------------------------------
-
-static mat4 getMatrix4f(const OVR::Matrix4f& src)
-{
-    return mat4(double(src.M[0][0]),
-                double(src.M[0][1]),
-                double(src.M[0][2]),
-                double(src.M[0][3]),
-                double(src.M[1][0]),
-                double(src.M[1][1]),
-                double(src.M[1][2]),
-                double(src.M[1][3]),
-                double(src.M[2][0]),
-                double(src.M[2][1]),
-                double(src.M[2][2]),
-                double(src.M[2][3]),
-                double(src.M[3][0]),
-                double(src.M[3][1]),
-                double(src.M[3][2]),
-                double(src.M[3][3]));
-}
-
-//-----------------------------------------------------------------------------
-
-dpy::oculus_dev *dpy::oculus::device = 0;
-
-dpy::oculus::oculus(app::node p) :
-    display(p), frust(0), chani(0), program(0)
-{
-    using namespace OVR::Util::Render;
-
-    chani = p.get_i("channel");
-
-    if (device == 0)
-        device = new oculus_dev();
-
-    // Apply the Oculus projections to the frustums.
-
-    if (OVR::System::IsInitialized())
-    {
-        mat4 P;
-
-        Stereo.SetHMDInfo(device->Info);
-        Stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
-        Stereo.SetStereoMode(Stereo_LeftRight_Multipass);
-        Stereo.SetFullViewport(Viewport(0, 0, device->Info.HResolution,
-                                              device->Info.VResolution));
-        if (chani)
-            P = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).Projection);
-        else
-            P = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).Projection);
-
-        frust = new app::perspective_frustum(P);
-    }
-    else
-        frust = new app::calibrated_frustum();
+    memset(tex, 0, 2 * sizeof (ovrTexture));
 }
 
 dpy::oculus::~oculus()
 {
     ::view->set_tracking(mat4());
-
-    delete frust;
 }
 
 //-----------------------------------------------------------------------------
 
 int dpy::oculus::get_frusc() const
 {
-    return 1;
+    return hmd ? 2 : 0;
 }
 
 void dpy::oculus::get_frusv(app::frustum **frusv) const
 {
-    frusv[0] = frust;
+    if (hmd)
+    {
+        frusv[0] = frust[0];
+        frusv[1] = frust[1];
+    }
 }
 
 //-----------------------------------------------------------------------------
 
+/// Convert an OVR matrix to a GLFundamentals matrix.
+
+static mat4 getMatrix4f(const OVR::Matrix4f& m)
+{
+    return mat4(m.M[0][0], m.M[0][1], m.M[0][2], m.M[0][3],
+                m.M[1][0], m.M[1][1], m.M[1][2], m.M[1][3],
+                m.M[2][0], m.M[2][1], m.M[2][2], m.M[2][3],
+                m.M[3][0], m.M[3][1], m.M[3][2], m.M[3][3]);
+}
+
 void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 {
-    using namespace OVR::Util::Render;
+    // GetEyePoses. Set each frustum to PV. Tracking is unused.
 
-    mat4 T;
+    // Copy the channel parameters to the OVR texture definitions.
 
-    // Include the Oculus eye offset in the tracking matrix.
-
-    if (chani)
-        T = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).ViewAdjust);
-    else
-        T = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).ViewAdjust);
-
-    // Include the Oculus orientation in the tracking matrix.
-
-    if (device->pSensor)
+    if (setup == false)
     {
-        OVR::Vector3f v;
-        float         a;
+        setup = true;
 
-        device->Fusion.GetOrientation().GetAxisAngle(&v, &a);
-        T = T * translation(vec3(0, -0.1, 0))
-              *    rotation(vec3(double(v.x),
-                                 double(v.y),
-                                 double(v.z)), double(a))
-              * translation(vec3(0, +0.1, 0));
+        for (int i = 0; i < 2; i++)
+        {
+            ovrGLTexture *p = reinterpret_cast<ovrGLTexture*>(tex + i);
+            ovrSizei      size;
+
+            size.w = chanv[i]->get_width();
+            size.h = chanv[i]->get_height();
+
+            p->OGL.Header.API                 = ovrRenderAPI_OpenGL;
+            p->OGL.Header.TextureSize         = size;
+            p->OGL.Header.RenderViewport.Size = size;
+            p->OGL.TexId                      = chanv[i]->get_color();
+        }
     }
+    frust[0]->set_eye(vec3(0, 0, 0));
+    frust[1]->set_eye(vec3(0, 0, 0));
 
-    // Set the tracking matrix.
-
-    ::view->set_tracking(T);
+    dismiss_warning();
 }
 
 void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 {
-    assert(chanv[chani]);
-    assert(program);
-
-    // Draw the scene to the off-screen buffer.
-
-    chanv[chani]->bind();
+    ovrHmd_BeginFrame(hmd, 0);
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        ::host->draw(frusi, frust, chani);
-    }
-    chanv[chani]->free();
+        ovrHmd_GetEyePoses(hmd, 0, offset, pose, NULL);
 
-    // Draw the off-screen buffer to the screen.
-
-    chanv[chani]->bind_color(GL_TEXTURE0);
-    {
-        program->bind();
+#if 0
+        for (int i = 0; i < 2; i++)
         {
-            int w = chanv[chani]->get_width();
-            int h = chanv[chani]->get_height();
+            // Get the head orientation matrix.
 
-            program->uniform("LensCenter", LensCenter);
-            program->uniform("ImageSize",  vec2(w, h));
+            OVR::Quatf q = OVR::Quatf(pose[i].Orientation);
+            mat4 O = getMatrix4f(OVR::Matrix4f(q.Inverted()));
 
-            fill(frust->get_width(),
-                 frust->get_height(), w, h);
+            // Get the head offset matrix.
+
+            mat4 T = translation(vec3(-pose[i].Position.x,
+                                      -pose[i].Position.y,
+                                      -pose[i].Position.z));
+
+            // Set the view matrix.
+
+            ::view->set_tracking(O * T);
+
+            // Draw the scene to the current channel.
+
+            chanv[i]->bind();
+            {
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                ::host->draw(frusi + i, frust[i], i);
+            }
+            chanv[i]->free();
         }
-        program->free();
+#endif
+        chanv[0]->bind();
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            ::host->draw(frusi + 0, frust[0], 0);
+        }
+        chanv[0]->free();
+        chanv[1]->bind();
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            ::host->draw(frusi + 1, frust[1], 1);
+        }
+        chanv[1]->free();
     }
-    chanv[chani]->free_color(GL_TEXTURE0);
+    ovrHmd_EndFrame(hmd, pose, tex);
+    ::host->set_swap();
 }
 
 void dpy::oculus::test(int chanc, const dpy::channel *const *chanv, int index)
 {
-    assert(chanv[chani]);
-    assert(program);
-
-    // Draw the test pattern to the off-screen buffer.
-
-    chanv[chani]->bind();
-    {
-        chanv[chani]->test();
-    }
-    chanv[chani]->free();
-
-    // Draw the off-screen buffer to the screen.
-
-    chanv[chani]->bind_color(GL_TEXTURE0);
-    {
-        program->bind();
-        {
-            int w = chanv[chani]->get_width();
-            int h = chanv[chani]->get_height();
-
-            program->uniform("LensCenter", LensCenter);
-            program->uniform("ImageSize",  vec2(w, h));
-
-            fill(frust->get_width(),
-                 frust->get_height(), w, h);
-        }
-        program->free();
-    }
-    chanv[chani]->free_color(GL_TEXTURE0);
 }
 
 //-----------------------------------------------------------------------------
 
 bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 {
-    assert(frust);
-
-    // Determine whether the pointer falls within the viewport.
+    // Let the frustum project the pointer into space.
 
     double s = double(x - viewport[0]) / viewport[2];
     double t = double(y - viewport[1]) / viewport[3];
 
-    if (true) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
-    {
-        // Apply the lens distortion to the pointer position.
-
-        double vx = (s - LensCenter[0]) * ScaleIn[0];
-        double vy = (t - LensCenter[1]) * ScaleIn[1];
-
-        double rr = vx * vx + vy * vy;
-
-        double k = (DistortionK[0] +
-                    DistortionK[1] * rr +
-                    DistortionK[2] * rr * rr +
-                    DistortionK[3] * rr * rr * rr);
-
-        double ox = LensCenter[0] + ScaleOut[0] * vx * k;
-        double oy = LensCenter[1] + ScaleOut[1] * vy * k;
-
-        // Let the frustum project the pointer into space.
-
-        return frust->pointer_to_3D(E, ox, oy);
-    }
+    if (frust[0]) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
+        return frust[0]->pointer_to_3D(E, s, t);
     else
         return false;
 }
 
 bool dpy::oculus::process_start(app::event *E)
 {
-    // Initialize the shader.
+    ovr_Initialize();
 
-    if ((program = ::glob->load_program("dpy/oculus.xml")))
-    {
-        double scale  = Stereo.GetDistortionScale();
-        double aspect = double(device->Info.HResolution)
-                      / double(device->Info.VResolution) / 2;
+    // Use the first connected HMD.
 
-        double center = 1 - (2 * double(device->Info.LensSeparationDistance))
-                               / double(device->Info.HScreenSize);
+    hmd = ovrHmd_Create(0);
 
-        if (chani) LensCenter = vec2(0.5 - 0.5 * center, 0.5);
-        else       LensCenter = vec2(0.5 + 0.5 * center, 0.5);
+    // Fall back on a DK1 debug configuration if no HMD is available.
 
-        DistortionK =        vec4(device->Info.DistortionK[0],
-                                  device->Info.DistortionK[1],
-                                  device->Info.DistortionK[2],
-                                  device->Info.DistortionK[3]);
-        ChromaAbCorrection = vec4(device->Info.ChromaAbCorrection[0],
-                                  device->Info.ChromaAbCorrection[1],
-                                  device->Info.ChromaAbCorrection[2],
-                                  device->Info.ChromaAbCorrection[3]);
+    if (hmd == 0)
+        hmd = ovrHmd_CreateDebug(ovrHmd_DK1);
 
-        ScaleOut = vec2(0.5 / scale, 0.5 * aspect / scale);
-        ScaleIn =  vec2(2.0,         2.0 / aspect);
+    // Enable all tracking capabilities on this HMD.
 
-        program->uniform("DistortionK",        DistortionK);
-        program->uniform("ChromaAbCorrection", ChromaAbCorrection);
-        program->uniform("ScaleOut",           ScaleOut);
-        program->uniform("ScaleIn",            ScaleIn);
-    }
+    if (hmd)
+        ovrHmd_ConfigureTracking(hmd, ovrTrackingCap_Orientation |
+                                      ovrTrackingCap_MagYawCorrection |
+                                      ovrTrackingCap_Position, 0);
+
+    // Configure the renderer. Zeroing the configuration stucture causes all
+    // display, window, and device specifications to take on current values
+    // as put in place by SDL. This should work cross-platform (but doesn't).
+    // A workaround is currently (0.4.3b) required under linux.
+
+    ovrGLConfig      cfg;
+    ovrEyeRenderDesc erd[2];
+
+    memset(&cfg, 0, sizeof (ovrGLConfig));
+
+    cfg.OGL.Header.API      = ovrRenderAPI_OpenGL;
+    cfg.OGL.Header.RTSize.w = hmd->Resolution.w;
+    cfg.OGL.Header.RTSize.h = hmd->Resolution.h;
+
+    // Set the configuration and receive eye render descriptors in return.
+
+    ovrHmd_ConfigureRendering(hmd, &cfg.Config, ovrDistortionCap_Chromatic
+                                              | ovrDistortionCap_TimeWarp
+                                              | ovrDistortionCap_Overdrive,
+                                                hmd->DefaultEyeFov, erd);
+
+    offset[0] = erd[0].HmdToEyeViewOffset;
+    offset[1] = erd[1].HmdToEyeViewOffset;
+
+    // Configure the projections.
+
+    mat4 P0 = getMatrix4f(ovrMatrix4f_Projection(erd[0].Fov, 1.0f, 100.0f, true));
+    mat4 P1 = getMatrix4f(ovrMatrix4f_Projection(erd[1].Fov, 1.0f, 100.0f, true));
+
+    frust[0] = new app::perspective_frustum(P0);
+    frust[1] = new app::perspective_frustum(P1);
+
     return false;
 }
 
 bool dpy::oculus::process_close(app::event *E)
 {
-    // Finalize the shader.
+    if (frust[0]) delete frust[0];
+    if (frust[1]) delete frust[1];
 
-    ::glob->free_program(program);
+    if (hmd) ovrHmd_Destroy(hmd);
 
-    program = 0;
+    ovr_Shutdown();
+
+    frust[0] = 0;
+    frust[1] = 0;
+
     return false;
 }
 
@@ -355,7 +247,25 @@ bool dpy::oculus::process_event(app::event *E)
     case E_START: process_start(E); break;
     case E_CLOSE: process_close(E); break;
     }
+
     return false;
+}
+
+//------------------------------------------------------------------------------
+
+/// Check if the OVR health & safety warning is visible and try to dismiss it.
+
+void dpy::oculus::dismiss_warning()
+{
+    if (hmd)
+    {
+        ovrHSWDisplayState state;
+
+        ovrHmd_GetHSWDisplayState(hmd, &state);
+
+        if (state.Displayed)
+            ovrHmd_DismissHSWDisplay(hmd);
+    }
 }
 
 //-----------------------------------------------------------------------------

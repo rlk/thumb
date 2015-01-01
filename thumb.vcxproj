@@ -38,14 +38,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeBuildCommandLine>nmake /nologo /f Makefile.vc DEBUG=1</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake /nologo /f Makefile.vc DEBUG=1 clean</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeIncludeSearchPath>C:\Include\freetype2;C:\Include\SDL2;C:\Include</NMakeIncludeSearchPath>
+    <NMakePreprocessorDefinitions>CONFIG_OCULUS;WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>$(ProjectDir)\include;C:\OculusSDK\LibOVR\Include;C:\OculusSDK\LibOVR\Src;C:\Include\freetype2;C:\Include\SDL2;C:\Include</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>nmake /nologo /f Makefile.vc</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake /nologo /f Makefile.vc clean</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeIncludeSearchPath>C:\Include\freetype2;C:\Include\SDL2;C:\Include</NMakeIncludeSearchPath>
+    <NMakePreprocessorDefinitions>CONFIG_OCULUS;WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>$(ProjectDir)\include;C:\OculusSDK\LibOVR\Include;C:\OculusSDK\LibOVR\Src;C:\Include\freetype2;C:\Include\SDL2;C:\Include</NMakeIncludeSearchPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
@@ -123,6 +123,7 @@
     <ClCompile Include="src\zip-data.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="data\Makefile.vc" />
     <None Include="Makefile.vc" />
     <None Include="src\Makefile.vc" />
   </ItemGroup>
