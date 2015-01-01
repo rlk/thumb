@@ -74,6 +74,18 @@ void app::frustum::set_view(const mat4& V)
     cache_planes(get_transform() * V);
 }
 
+void app::frustum::set_proj(const mat4& P)
+{
+    mat4 I = inverse(P);
+
+    corner[0] = I * vec3(-1, -1, -1);
+    corner[1] = I * vec3( 1, -1, -1);
+    corner[2] = I * vec3(-1,  1, -1);
+    corner[3] = I * vec3( 1,  1, -1);
+
+    cache_basis();
+}
+
 //-----------------------------------------------------------------------------
 
 // Cache the display coordinate system basis in user space.

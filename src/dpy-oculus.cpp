@@ -40,8 +40,11 @@ static mat4 getMatrix4f(const OVR::Matrix4f& m)
 //-----------------------------------------------------------------------------
 
 dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
-    : display(p), hmd(0), setup(false)
+    : display(p), hmd(0)
 {
+    frust[0] = new app::perspective_frustum();
+    frust[1] = new app::perspective_frustum();
+
     ovr_Initialize();
 
     // Use the first connected HMD.
@@ -77,12 +80,29 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
 
         buffer_size[0] = std::max(sz0.w, sz1.w);
         buffer_size[1] = std::max(sz0.h, sz1.h);
+
+        // Configure the offscreen render targets.
+
+        memset(tex, 0, 2 * sizeof (ovrTexture));
+
+        for (int i = 0; i < 2; i++)
+        {
+            ovrGLTexture *p = reinterpret_cast<ovrGLTexture*>(tex + i);
+
+            p->OGL.Header.API                   = ovrRenderAPI_OpenGL;
+            p->OGL.Header.TextureSize.w         = buffer_size[0];
+            p->OGL.Header.TextureSize.h         = buffer_size[1];
+            p->OGL.Header.RenderViewport.Size.w = buffer_size[0];
+            p->OGL.Header.RenderViewport.Size.h = buffer_size[1];
+        }
     }
-    memset(tex, 0, 2 * sizeof (ovrTexture));
 }
 
 dpy::oculus::~oculus()
 {
+    delete frust[1];
+    delete frust[0];
+
     if (hmd) ovrHmd_Destroy(hmd);
 
     ovr_Shutdown();
@@ -92,46 +112,42 @@ dpy::oculus::~oculus()
 
 int dpy::oculus::get_frusc() const
 {
-    return hmd ? 2 : 0;
+    return 2;
 }
 
 void dpy::oculus::get_frusv(app::frustum **frusv) const
 {
-    if (hmd)
-    {
-        frusv[0] = frust[0];
-        frusv[1] = frust[1];
-    }
+    assert(frust[0]);
+    assert(frust[1]);
+
+    frusv[0] = frust[0];
+    frusv[1] = frust[1];
 }
 
 //-----------------------------------------------------------------------------
 
 void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 {
-    // GetEyePoses. Set each frustum to PV. Tracking is unused.
+    // Set the perspective projections.
 
-    // Copy the channel parameters to the OVR texture definitions.
+    ovrHmd_GetEyePoses(hmd, 0, offset, pose, NULL);
 
-    if (setup == false)
+    for (int i = 0; i < 2; i++)
     {
-        setup = true;
+        OVR::Quatf q = OVR::Quatf(pose[i].Orientation);
+        mat4 O = getMatrix4f(OVR::Matrix4f(q.Inverted()));
 
-        for (int i = 0; i < 2; i++)
-        {
-            ovrGLTexture *p = reinterpret_cast<ovrGLTexture*>(tex + i);
-            ovrSizei      size;
+        mat4 T = translation(vec3(-pose[i].Position.x,
+                                  -pose[i].Position.y,
+                                  -pose[i].Position.z));
 
-            size.w = chanv[i]->get_width();
-            size.h = chanv[i]->get_height();
-
-            p->OGL.Header.API                 = ovrRenderAPI_OpenGL;
-            p->OGL.Header.TextureSize         = size;
-            p->OGL.Header.RenderViewport.Size = size;
-            p->OGL.TexId                      = chanv[i]->get_color();
-        }
+        frust[i]->set_proj(projection[i] * O * T);
     }
-    frust[0]->set_eye(vec3(0, 0, 0));
-    frust[1]->set_eye(vec3(0, 0, 0));
+
+    // Configure OVR to render to the given channels.
+
+    reinterpret_cast<ovrGLTexture*>(tex + 0)->OGL.TexId = chanv[0]->get_color();
+    reinterpret_cast<ovrGLTexture*>(tex + 1)->OGL.TexId = chanv[1]->get_color();
 
     dismiss_warning();
 }
@@ -140,36 +156,6 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 {
     ovrHmd_BeginFrame(hmd, 0);
     {
-        ovrHmd_GetEyePoses(hmd, 0, offset, pose, NULL);
-
-#if 0
-        for (int i = 0; i < 2; i++)
-        {
-            // Get the head orientation matrix.
-
-            OVR::Quatf q = OVR::Quatf(pose[i].Orientation);
-            mat4 O = getMatrix4f(OVR::Matrix4f(q.Inverted()));
-
-            // Get the head offset matrix.
-
-            mat4 T = translation(vec3(-pose[i].Position.x,
-                                      -pose[i].Position.y,
-                                      -pose[i].Position.z));
-
-            // Set the view matrix.
-
-            ::view->set_tracking(O * T);
-
-            // Draw the scene to the current channel.
-
-            chanv[i]->bind();
-            {
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                ::host->draw(frusi + i, frust[i], i);
-            }
-            chanv[i]->free();
-        }
-#endif
         chanv[0]->bind();
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -184,6 +170,7 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
         chanv[1]->free();
     }
     ovrHmd_EndFrame(hmd, pose, tex);
+
     ::host->set_swap();
 }
 
@@ -200,7 +187,7 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
     double s = double(x - viewport[0]) / viewport[2];
     double t = double(y - viewport[1]) / viewport[3];
 
-    if (frust[0]) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
+    if (true) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
         return frust[0]->pointer_to_3D(E, s, t);
     else
         return false;
@@ -234,23 +221,14 @@ bool dpy::oculus::process_start(app::event *E)
 
     // Configure the projections.
 
-    ovrMatrix4f P0 = ovrMatrix4f_Projection(erd[0].Fov, 1.f, 10.f, true);
-    ovrMatrix4f P1 = ovrMatrix4f_Projection(erd[1].Fov, 1.f, 10.f, true);
-
-    frust[0] = new app::perspective_frustum(getMatrix4f(P0));
-    frust[1] = new app::perspective_frustum(getMatrix4f(P1));
+    projection[0] = getMatrix4f(ovrMatrix4f_Projection(erd[0].Fov, 1.f, 10.f, true));
+    projection[1] = getMatrix4f(ovrMatrix4f_Projection(erd[1].Fov, 1.f, 10.f, true));
 
     return false;
 }
 
 bool dpy::oculus::process_close(app::event *E)
 {
-    if (frust[0]) delete frust[0];
-    if (frust[1]) delete frust[1];
-
-    frust[0] = 0;
-    frust[1] = 0;
-
     return false;
 }
 

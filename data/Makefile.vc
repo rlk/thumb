@@ -27,12 +27,8 @@ DATA = \
 	config/stereoscopic/3D-TV-left-right.xml \
 	config/stereoscopic/3D-TV-top-bottom.xml \
 	config/stereoscopic/anaglyph.xml \
-	config/stereoscopic/oculus-1080-fullscreen.xml \
-	config/stereoscopic/oculus-1440-fullscreen.xml \
-	config/stereoscopic/oculus-DK1-fullscreen.xml \
-	config/stereoscopic/oculus-DK1-window.xml \
-	config/stereoscopic/oculus-DK2.xml \
-	config/stereoscopic/planar2x2.xml \
+	config/stereoscopic/Oculus-Rift.xml \
+	config/stereoscopic/Planar-2x2.xml \
 	data.xml \
 	glsl/contour.frag \
 	glsl/contour.vert \

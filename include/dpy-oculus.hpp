@@ -59,13 +59,12 @@ namespace dpy
 
     private:
 
-        bool setup;
-
         ovrHmd          hmd;
         ovrVector3f  offset[2];
         ovrPosef       pose[2];
         ovrTexture      tex[2];
         app::frustum *frust[2];
+        mat4     projection[2];
 
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);
