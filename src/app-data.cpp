@@ -99,6 +99,9 @@ static bool is_data_dir(std::string dir)
 }
 #endif
 
+extern unsigned char thumb_data[];
+extern unsigned int  thumb_data_len;
+
 app::data::data(const std::string& filename) : filename(filename), file("")
 {
     int rwprio = 10;
@@ -137,9 +140,6 @@ app::data::data(const std::string& filename) : filename(filename), file("")
     }
 
     // Look to the static archive.
-
-    extern unsigned char thumb_data[];
-    extern unsigned int  thumb_data_len;
 
     archives.insert(new app::pack_archive(thumb_data,
                                           thumb_data_len, 100));

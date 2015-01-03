@@ -1,6 +1,6 @@
 # Thumb
 
-Thumb is [my](http://kooima.net) personal real-time 3D graphics research codebase, presented in the form of a library. It provides a rendering engine with a highly-configurable shading system wrapping an ODE physical simulation with an in-engine world editor. A wide array of stereoscopic displays and virtual reality devices are supported, and a distributed synchronization mechanism enables cluster-parallel rendering.
+Thumb is [my](http://kooima.net) real-time 3D graphics research codebase, presented in the form of a library. It provides a rendering engine with a highly-configurable shading system wrapping an ODE physical simulation with an in-engine world editor. A wide array of stereoscopic displays and virtual reality devices are supported, and a distributed synchronization mechanism enables cluster-parallel rendering.
 
 ## Dependencies
 
@@ -12,9 +12,43 @@ Thumb depends upon a number of external libraries. Binary distributions of Thumb
 - [libpng](http://www.libpng.org) reads PNG image files.
 - [zlib](http://www.zlib.net) decompresses data.
 - [ODE](http://ode.org) performs physics simulation.
-- [xxd](http://grail.cba.csuohio.edu/%7Esomos/xxd-1.10.tar.gz) embeds data within the library.
+- [zip](http://www.info-zip.org/Zip.html) helps embed static data.
 
-The Thumb build uses a simple Makefile which seeks these dependencies using [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/).
+## Build
+
+### Linux and Mac OSX
+
+Linux and Mac OSX builds are driven by Makefiles. Dependencies are managed by [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/). Simply run `make` to produce `Release/libthumb.a`:
+
+	make
+
+To produce a debug build of the library `Debug/libthumb.a`:
+
+	make DEBUG=1
+
+To produce a dynamically linkable library:
+
+	make DYNAMIC=1
+
+### Windows
+
+The Windows build is driven by `nmake` files named `Makefile.vc`. These include some local configuration that *must* be set.
+
+- `LOCAL_INCLUDE` gives the location of the dependency headers. Default: `C:\Include`
+
+- `LIBOVR` gives the root of the `LibOVR` directory in the Oculus SDK. Default: `C:\OculusSDK\LibOVR`
+
+- `ZIP` gives the path and options for the ZIP command. Default: `C:\Bin\zip.exe -9`
+
+The build is activated using either the included Visual Studio project file or the developer's command prompt. On the command prompt, use `nmake` to produce `Release/thumb.lib`:
+
+	nmake /f Makefile.vc
+
+To produce a debug build of the library `Debug/thumb.lib`
+
+	nmake /f Makefile.vc DEBUG=1
+
+The current Windows build does not support dynamic linking.
 
 ## File system
 

@@ -3,31 +3,30 @@
 # Determine the target platform.
 
 ifeq      ($(shell uname), Darwin)
-	ISMACOS = true
+	MACOS = true
 else ifeq ($(shell uname), Linux)
-	ISLINUX = true
-else ifeq ($(shell uname), MINGW32_NT-6.1)
-	ISMINGW = true
+	LINUX = true
 endif
 
 #------------------------------------------------------------------------------
 # Configure the compiler
 
-ifdef ISMINGW
-	CC      = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-gcc.exe"
-	CXX     = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-g++.exe" -fno-rtti
-else
-	CC      = cc
-	CXX     = c++ -fno-rtti
-	DYNAMIC = true
-endif
+CC      = cc
+CXX     = c++
+CFLAGS  = -fno-rtti -Wall
 
-CFLAGS += -Wall -g
+ifdef DEBUG
+	CONFIG  = Debug
+	CFLAGS += -g
+else
+	CONFIG  = Release
+	CFLAGS += -O2 -DNDEBUG
+endif
 
 #------------------------------------------------------------------------------
 # Configure the system libraries.
 
-ifdef ISMACOS
+ifdef MACOS
 	SYSLIBS = -framework OpenGL \
  		  -framework IOKit \
 		  -framework Cocoa \
@@ -40,7 +39,7 @@ ifdef ISMACOS
 	LIBPATH = /usr/local/lib/ /opt/local/lib/ /usr/lib/
 endif
 
-ifdef ISLINUX
+ifdef LINUX
 	ifdef DYNAMIC
 		CFLAGS += -fPIC
 	else
@@ -48,14 +47,6 @@ ifdef ISLINUX
 	endif
 	SYSLIBS = -lGL
 	LIBPATH = /usr/local/lib/ /usr/lib/ /usr/lib/x86_64-linux-gnu/
-endif
-
-ifdef ISMINGW
-	CFLAGS  += -static -DGLEW_STATIC
-	#SYSLIBS += -mwindows
-	SYSLIBS += -lopengl32 -lole32 -loleaut32 -lws2_32 -lversion -luuid -lwinmm -limm32 -lgdi32 -luser32 -lkernel32 -lcomctl32
-	LIBS    += -lmingw32
-	LIBPATH  = C:/MinGW/lib/
 endif
 
 #------------------------------------------------------------------------------
@@ -79,8 +70,7 @@ else
 	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH))) -lz)
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2main.a, $(LIBPATH))))
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
-	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH)) \
-	                               $(addsuffix libglew32.a,   $(LIBPATH))) -lglew)
+	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))) -lglew)
 	LIBS += $(firstword $(wildcard $(addsuffix libiconv.a,    $(LIBPATH))) -liconv)
 endif
 
@@ -89,47 +79,45 @@ CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
 #------------------------------------------------------------------------------
 # Optional Oculus SDK
 
-ifdef ISMACOS
+ifdef MACOS
 	OVRPATH = /usr/local/OculusSDK/LibOVR
 	ifneq (, $(wildcard $(OVRPATH)))
-		LIBS    += -L$(OVRPATH)/Lib/MacOS/Release -lovr
+		ifdef DEBUG
+			LIBS += -L$(OVRPATH)/Lib/Mac/Debug -lovr
+		else
+			LIBS += -L$(OVRPATH)/Lib/Mac/Release -lovr
+		endif
 		CFLAGS  += -I$(OVRPATH)/Include
-		CFLAGS  += -DWITH_OCULUS
+		CFLAGS  += -I$(OVRPATH)/Src
+		CFLAGS  += -DCONFIG_OCULUS
 	endif
 endif
 
-ifdef ISLINUX
+ifdef LINUX
 	OVRPATH = /usr/local/OculusSDK/LibOVR
 	ifneq (, $(wildcard $(OVRPATH)))
-		LIBS    += -L$(OVRPATH)/Lib/Linux/Release/x86_64 -lovr
+		ifdef DEBUG
+			LIBS += -L$(OVRPATH)/Lib/Linux/Debug/x86_64 -lovr
+		else
+			LIBS += -L$(OVRPATH)/Lib/Linux/Release/x86_64 -lovr
+		endif
 		SYSLIBS += -ludev -lX11 -lXinerama
 		CFLAGS  += -I$(OVRPATH)/Include
-		CFLAGS  += -DWITH_OCULUS
-	endif
-endif
-
-# https://github.com/larspensjo/OculusSDK-MinGW/
-
-ifdef ISMINGW
-	OVRPATH = C:/Users/rlk/Documents/GitHub/ovr_sdk_mingw_0.2.5c
-	ifneq (, $(wildcard $(OVRPATH)))
-		LIBS    += $(OVRPATH)/LibOVR/Lib/libOVR_MinGW_Win32_d.a
-		SYSLIBS += -lsetupapi
-		CFLAGS  += -I$(OVRPATH)/LibOVR/Include
-		CFLAGS  += -DWITH_OCULUS
+		CFLAGS  += -I$(OVRPATH)/Src
+		CFLAGS  += -DCONFIG_OCULUS
 	endif
 endif
 
 #------------------------------------------------------------------------------
-# Optional Sixense SDK
+# Optional Sixense SDK (disabled for now)
 
-SIXPATH = /usr/local
-
-ifneq (, $(wildcard $(SIXPATH)/lib/libsixense*))
-	LIBS   += -L$(SIXPATH)/lib -lsixense_x64
-	CFLAGS += -I$(SIXPATH)/include
-	CFLAGS += -DWITH_SIXENSE
-endif
+#SIXPATH = /usr/local
+#
+#ifneq (, $(wildcard $(SIXPATH)/lib/libsixense*))
+#	LIBS   += -L$(SIXPATH)/lib -lsixense_x64
+#	CFLAGS += -I$(SIXPATH)/include
+#	CFLAGS += -DCONFIG_SIXENSE
+#endif
 
 #------------------------------------------------------------------------------
 

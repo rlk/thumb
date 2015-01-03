@@ -114,7 +114,7 @@ $(TARGET) : $(OBJS)
 
 #------------------------------------------------------------------------------
 
-# Compile the bin2c tool, which helps embed binary data in C sources.
+# The bin2c tool embeds binary data in C sources.
 
 B2C = ..\etc\bin2c.exe
 

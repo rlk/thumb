@@ -10,17 +10,24 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#ifdef CONFIG_OCULUS
 #ifndef DPY_OCULUS_HPP
 #define DPY_OCULUS_HPP
-#ifdef CONFIG_OCULUS
+
+//-----------------------------------------------------------------------------
+
+// OVR's definition of static_assert conflicts with LLVM's. IMO, LLVM has dibs,
+// so this undef should eventually become unnecessary.
+
+#undef static_assert
 
 #include <OVR.h>
 #include <OVR_CAPI_GL.h>
 
+//-----------------------------------------------------------------------------
+
 #include <dpy-display.hpp>
 #include <app-file.hpp>
-
-//-----------------------------------------------------------------------------
 
 namespace ogl
 {

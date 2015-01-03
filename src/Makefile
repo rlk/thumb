@@ -1,8 +1,8 @@
+# libthumb -- Linux / Mac OSX Makefile
+
 include ../Makedefs
 
 #------------------------------------------------------------------------------
-
-#CFLAGS += -O2 -ffast-math -DNDEBUG
 
 CFLAGS += -DVERSION=0.9
 
@@ -78,8 +78,6 @@ OBJS=	app-data.o \
 	wrl-solid.o \
 	wrl-world.o \
 	zip-data.o
-#	dev-hybrid.o \
-#	dev-trackd.o \
 
 DEPS= $(OBJS:.o=.d)
 
@@ -88,37 +86,51 @@ CFLAGS += -I../include
 #------------------------------------------------------------------------------
 # The platform and linkage determine the target name.
 
+TARGDIR = ../$(CONFIG)
+
 ifdef DYNAMIC
-	ifdef ISMACOS
-		TARG = libthumb.dylib
+	ifdef MACOS
+		TARG = $(TARGDIR)/libthumb.dylib
 	endif
-	ifdef ISLINUX
-		TARG = libthumb.so
+	ifdef LINUX
+		TARG = $(TARGDIR)/libthumb.so
 	endif
 else
-	TARG = libthumb.a
+	TARG = $(TARGDIR)/libthumb.a
 endif
 
 #------------------------------------------------------------------------------
 
-all : $(TARG)
+all : $(TARGDIR) $(TARG)
 
-libthumb.a : $(OBJS)
-	ar -r libthumb.a $(OBJS)
+$(TARGDIR) :
+	mkdir -p $(TARGDIR)
 
-libthumb.so : $(OBJS)
-	$(CXX) $(CFLAGS) -shared -o libthumb.so $(OBJS) $(LIBS)
+$(TARGDIR)/libthumb.a : $(OBJS)
+	ar -r $@ $(OBJS)
 
-libthumb.dylib : $(OBJS)
-	$(CXX) $(CFLAGS) -dynamiclib -o libthumb.dylib $(OBJS) $(LIBS)
+$(TARGDIR)/libthumb.so : $(OBJS)
+	$(CXX) $(CFLAGS) -shared -o $@ $(OBJS) $(LIBS)
+
+$(TARGDIR)/libthumb.dylib : $(OBJS)
+	$(CXX) $(CFLAGS) -dynamiclib -o $@ $(OBJS) $(LIBS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)
 
 #------------------------------------------------------------------------------
 
-zip-data.cpp : ../data/data.zip
-	xxd -i ../data/data.zip > zip-data.cpp
+# The bin2c tool embeds binary data in C sources.
+
+B2C = ../etc/bin2c
+
+$(B2C) : ../etc/bin2c.c
+	$(CC) -o $(B2C) ../etc/bin2c.c
+
+#------------------------------------------------------------------------------
+
+zip-data.cpp : ../data/data.zip $(B2C)
+	$(B2C) thumb_data < ../data/data.zip > zip-data.cpp
 
 #------------------------------------------------------------------------------
 

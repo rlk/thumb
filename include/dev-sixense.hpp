@@ -10,9 +10,9 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DEV_SIXENSE
-#define DEV_SIXENSE
-#ifdef WITH_SIXENSE
+#ifdef CONFIG_SIXENSE
+#ifndef DEV_SIXENSE_HPP
+#define DEV_SIXENSE_HPP
 
 #include <dev-input.hpp>
 #include <etc-vector.hpp>
