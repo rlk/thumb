@@ -3,7 +3,7 @@
 # Determine the target platform.
 
 ifeq      ($(shell uname), Darwin)
-	MACOS = true
+	OSX = true
 else ifeq ($(shell uname), Linux)
 	LINUX = true
 endif
@@ -26,7 +26,7 @@ endif
 #------------------------------------------------------------------------------
 # Configure the system libraries.
 
-ifdef MACOS
+ifdef OSX
 	SYSLIBS = -framework OpenGL \
  		  -framework IOKit \
 		  -framework Cocoa \
@@ -79,7 +79,7 @@ CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
 #------------------------------------------------------------------------------
 # Optional Oculus SDK
 
-ifdef MACOS
+ifdef OSX
 	OVRPATH = /usr/local/OculusSDK/LibOVR
 	ifneq (, $(wildcard $(OVRPATH)))
 		ifdef DEBUG

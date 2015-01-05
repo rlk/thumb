@@ -55,7 +55,7 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
 
     if (hmd == 0)
         hmd = ovrHmd_CreateDebug(ovrHmd_DK1);
-    
+
     if (hmd)
     {
         // Enable all tracking capabilities on this HMD.
@@ -65,7 +65,7 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
                                       ovrTrackingCap_Position, 0);
 
         // Override the window configuration .
-        
+
         window_rect[0] = hmd->WindowsPos.x;
         window_rect[1] = hmd->WindowsPos.y;
         window_rect[2] = hmd->Resolution.w;

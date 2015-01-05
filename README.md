@@ -14,11 +14,15 @@ Thumb depends upon a number of external libraries. Binary distributions of Thumb
 - [ODE](http://ode.org) performs physics simulation.
 - [zip](http://www.info-zip.org/Zip.html) helps embed static data.
 
+Optionally,
+
+- [LibOVR](https://developer.oculus.com) enables Oculus Rift support.
+
 ## Build
 
-### Linux and Mac OSX
+### Linux and OS X
 
-Linux and Mac OSX builds are driven by Makefiles. Dependencies are managed by [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/). Simply run `make` to produce `Release/libthumb.a`:
+Linux and OS X builds are driven by Makefiles. Dependencies are managed by [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/). Simply run `make` to produce `Release/libthumb.a`:
 
 	make
 

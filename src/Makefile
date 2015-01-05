@@ -1,4 +1,4 @@
-# libthumb -- Linux / Mac OSX Makefile
+# libthumb -- Linux / OS X Makefile
 
 include ../Makedefs
 
@@ -89,7 +89,7 @@ CFLAGS += -I../include
 TARGDIR = ../$(CONFIG)
 
 ifdef DYNAMIC
-	ifdef MACOS
+	ifdef OSX
 		TARG = $(TARGDIR)/libthumb.dylib
 	endif
 	ifdef LINUX
@@ -119,7 +119,6 @@ clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)
 
 #------------------------------------------------------------------------------
-
 # The bin2c tool embeds binary data in C sources.
 
 B2C = ../etc/bin2c
@@ -130,7 +129,7 @@ $(B2C) : ../etc/bin2c.c
 #------------------------------------------------------------------------------
 
 zip-data.cpp : ../data/data.zip $(B2C)
-	$(B2C) thumb_data < ../data/data.zip > zip-data.cpp
+	$(B2C) thumb_data < $< > $@
 
 #------------------------------------------------------------------------------
 
