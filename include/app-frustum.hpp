@@ -50,7 +50,7 @@ namespace app
 
         virtual void set_eye  (const vec3&);
         virtual void set_view (const mat4&);
-        virtual void set_proj (const mat4&);
+        virtual void set_proj (const mat4&, const vec3&);
         virtual void set_bound(const mat4&, const ogl::aabb&) = 0;
 
         // Queries

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <host>
   <node name="default">
-    <window full="0" cursor="0" />
+    <window full="0" frame="0" cursor="0" />
     <channel/>
     <channel/>
     <overlay>

@@ -44,6 +44,7 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
 {
     frust[0] = new app::perspective_frustum();
     frust[1] = new app::perspective_frustum();
+    frustgui = new app::perspective_frustum();
 
     ovr_Initialize();
 
@@ -100,6 +101,7 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
 
 dpy::oculus::~oculus()
 {
+    delete frustgui;
     delete frust[1];
     delete frust[0];
 
@@ -134,14 +136,17 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 
     for (int i = 0; i < 2; i++)
     {
+        vec3 p = vec3(pose[i].Position.x,
+                      pose[i].Position.y,
+                      pose[i].Position.z);
+
         OVR::Quatf q = OVR::Quatf(pose[i].Orientation);
+
         mat4 O = getMatrix4f(OVR::Matrix4f(q.Inverted()));
+        mat4 T = translation(-p);
 
-        mat4 T = translation(vec3(-pose[i].Position.x,
-                                  -pose[i].Position.y,
-                                  -pose[i].Position.z));
-
-        frust[i]->set_proj(projection[i] * O * T);
+        frust[i]->set_proj(projection[i] * O * T, p);
+        frustgui->set_proj(projection[0] * O, vec3());
     }
 
     // Configure OVR to render to the given channels.
@@ -180,6 +185,27 @@ void dpy::oculus::test(int chanc, const dpy::channel *const *chanv, int index)
 
 //-----------------------------------------------------------------------------
 
+// Configure the renderer. Zeroing the configuration stucture causes all
+// display, window, and device specifications to take on current values
+// as put in place by SDL. This *should* work cross-platform.
+
+static void configure_renderer(ovrHmd hmd, ovrGLConfig *cfg)
+{
+    memset(cfg, 0, sizeof (ovrGLConfig));
+
+#if OVR_MAJOR_VERSIEN == 0 && OVR_MINOR_VERSION == 4 && OVR_BUILD_VERSION < 4
+    cfg->OGL.Header.API              = ovrRenderAPI_OpenGL;
+    cfg->OGL.Header.RTSize.w         = hmd->Resolution.w;
+    cfg->OGL.Header.RTSize.h         = hmd->Resolution.h;
+#else
+    cfg->OGL.Header.API              = ovrRenderAPI_OpenGL;
+    cfg->OGL.Header.BackBufferSize.w = hmd->Resolution.w;
+    cfg->OGL.Header.BackBufferSize.h = hmd->Resolution.h;
+#endif
+}
+
+//-----------------------------------------------------------------------------
+
 bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 {
     // Let the frustum project the pointer into space.
@@ -188,29 +214,20 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
     double t = double(y - viewport[1]) / viewport[3];
 
     if (true) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
-        return frust[0]->pointer_to_3D(E, s, t);
+        return frustgui->pointer_to_3D(E, s, t);
     else
         return false;
 }
 
 bool dpy::oculus::process_start(app::event *E)
 {
-    // Configure the renderer. Zeroing the configuration stucture causes all
-    // display, window, and device specifications to take on current values
-    // as put in place by SDL. This should work cross-platform (but doesn't).
-    // A workaround is currently (0.4.3b) required under linux.
-
     ovrGLConfig      cfg;
     ovrEyeRenderDesc erd[2];
 
-    memset(&cfg, 0, sizeof (ovrGLConfig));
-
-    cfg.OGL.Header.API      = ovrRenderAPI_OpenGL;
-    cfg.OGL.Header.RTSize.w = hmd->Resolution.w;
-    cfg.OGL.Header.RTSize.h = hmd->Resolution.h;
-
     // Set the configuration and receive eye render descriptors in return.
 
+    configure_renderer(hmd, &cfg);
+ 
     ovrHmd_ConfigureRendering(hmd, &cfg.Config, ovrDistortionCap_Chromatic
                                                 | ovrDistortionCap_TimeWarp
                                                 | ovrDistortionCap_Overdrive,

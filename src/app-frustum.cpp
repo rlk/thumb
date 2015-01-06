@@ -74,7 +74,9 @@ void app::frustum::set_view(const mat4& V)
     cache_planes(get_transform() * V);
 }
 
-void app::frustum::set_proj(const mat4& P)
+// Compute the screen corners and eye position of the given projection matrix.
+
+void app::frustum::set_proj(const mat4& P, const vec3& p)
 {
     mat4 I = inverse(P);
 
@@ -82,6 +84,8 @@ void app::frustum::set_proj(const mat4& P)
     corner[1] = I * vec3( 1, -1, -1);
     corner[2] = I * vec3(-1,  1, -1);
     corner[3] = I * vec3( 1,  1, -1);
+
+    eye = p;
 
     cache_basis();
 }
