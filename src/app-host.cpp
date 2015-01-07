@@ -16,6 +16,7 @@
 
 #include <etc-socket.hpp>
 #include <etc-vector.hpp>
+#include <etc-log.hpp>
 
 #include <ogl-range.hpp>
 #include <ogl-frame.hpp>
@@ -512,6 +513,14 @@ void app::host::fork_client(const char *name,
 void app::host::root_loop()
 {
     event E;
+    event P;
+
+    SDL_Event e;
+    SDL_Event p;
+
+    p.type = SDL_MOUSEMOTION;
+    p.motion.x = 0;
+    p.motion.y = 0;
 
     // Kick off with a START event.
 
@@ -523,30 +532,24 @@ void app::host::root_loop()
     {
         // Translate and dispatch SDL events.
 
-        SDL_Event e;
-        SDL_Event p;
-
-        p.type = SDL_MOUSEMOTION;
-        p.motion.x = 0;
-        p.motion.y = 0;
-
         while (program->is_running() && SDL_PollEvent(&e))
+        {
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
                 p = e;
-                if (pointer_to_3D(&E, e.motion.x, window_rect[3] - e.motion.y))
-                    process_event(&E);
+                if (pointer_to_3D(&P, p.motion.x, window_rect[3] - p.motion.y))
+                    process_event(&P);
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
                 process_event(E.mk_click(e.button.button,
-                                         SDL_GetModState(), true));
+                    SDL_GetModState(), true));
                 break;
 
             case SDL_MOUSEBUTTONUP:
                 process_event(E.mk_click(e.button.button,
-                                         SDL_GetModState(), false));
+                    SDL_GetModState(), false));
                 break;
 
             case SDL_MOUSEWHEEL:
@@ -567,13 +570,13 @@ void app::host::root_loop()
 #endif
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,
-                                           SDL_GetModState(), true));
+                    SDL_GetModState(), true));
                 break;
 
             case SDL_KEYUP:
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,
-                                           SDL_GetModState(), false));
+                    SDL_GetModState(), false));
                 break;
 
             case SDL_TEXTINPUT:
@@ -582,18 +585,18 @@ void app::host::root_loop()
 
             case SDL_JOYAXISMOTION:
                 process_event(program->axis_remap(E.mk_axis(e.jaxis.which,
-                                                            e.jaxis.axis,
-                                                            e.jaxis.value)));
+                    e.jaxis.axis,
+                    e.jaxis.value)));
                 break;
 
             case SDL_JOYBUTTONDOWN:
                 process_event(E.mk_button(e.jbutton.which,
-                                          e.jbutton.button, true));
+                    e.jbutton.button, true));
                 break;
 
             case SDL_JOYBUTTONUP:
                 process_event(E.mk_button(e.jbutton.which,
-                                          e.jbutton.button, false));
+                    e.jbutton.button, false));
                 break;
 
             case SDL_USEREVENT:
@@ -604,6 +607,7 @@ void app::host::root_loop()
                 process_event(E.mk_close());
                 break;
             }
+        }
 
         if (program->is_running())
         {
@@ -621,10 +625,25 @@ void app::host::root_loop()
                     process_event(E.mk_tick(JIFFY));
 
             // Synthesize pointer motion to account for navigation.
-#if 0
-            if (pointer_to_3D(&E, p.motion.x, window_rect[3] - p.motion.y))
-                process_event(&E);
-#endif
+
+            if (p.motion.x && p.motion.y)
+            {
+                if (pointer_to_3D(&E, p.motion.x, window_rect[3] - p.motion.y))
+                {
+                    if (E.data.point.p[0] != P.data.point.p[0] ||
+                        E.data.point.p[1] != P.data.point.p[1] ||
+                        E.data.point.p[2] != P.data.point.p[2] ||
+                        E.data.point.q[0] != P.data.point.q[0] ||
+                        E.data.point.q[1] != P.data.point.q[1] ||
+                        E.data.point.q[2] != P.data.point.q[2] ||
+                        E.data.point.q[3] != P.data.point.q[3])
+                    {
+                        process_event(&E);
+                        P = E;
+                    }
+                }
+            }
+
             // Call the render handler.
 
             swapped = false;
