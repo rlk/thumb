@@ -72,8 +72,6 @@ void app::prog::video_up()
     int w = ::host->get_window_w();
     int h = ::host->get_window_h();
 
-    SDL_ShowCursor(::host->get_window_c() ? SDL_ENABLE : SDL_DISABLE);
-
     // Look up the GL context parameters.
 
     int mults = ::conf->get_i("multisample_samples");
@@ -112,6 +110,9 @@ void app::prog::video_up()
         }
     }
 
+    SDL_ShowCursor           (::host->get_window_c() ? SDL_ENABLE : SDL_DISABLE);
+    SDL_SetWindowGrab(window, ::host->get_window_c() ? SDL_FALSE  : SDL_TRUE);
+
     // Initialize the OpenGL state.
 
     context = SDL_GL_CreateContext(window);
@@ -128,6 +129,8 @@ void app::prog::video_up()
 
 void app::prog::video_dn()
 {
+    SDL_SetWindowGrab(window, SDL_FALSE);
+
     ogl::fini();
 
     if (context) SDL_GL_DeleteContext(context);
@@ -544,8 +547,8 @@ void app::prog::axis_setup()
     {
         const int n = SDL_JoystickNumAxes(joystick);
 
-        axis_min.reserve(n);
-        axis_max.reserve(n);
+        axis_min.resize(n);
+        axis_max.resize(n);
 
         char min[32];
         char max[32];
