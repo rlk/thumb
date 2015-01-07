@@ -18,6 +18,7 @@ CPPFLAGS = /nologo /W3 /EHsc \
 
 LINK     = lib /nologo
 TARGET   = thumb.lib
+TARGDIR  = ..\$(CONFIG)
 
 !ifdef DEBUG
 CONFIG   = Debug
@@ -109,8 +110,11 @@ CPPFLAGS = $(CPPFLAGS) \
 	/I$(LOCAL_INCLUDE) \
 	/I..\include
 
-$(TARGET) : $(OBJS)
-	$(LINK) /out:..\$(CONFIG)\$(TARGET) $(OBJS)
+$(TARGDIR)\$(TARGET) : $(TARGDIR) $(OBJS)
+	$(LINK) /out:$(TARGDIR)\$(TARGET) $(OBJS)
+
+$(TARGDIR) :
+	mkdir $(TARGDIR)
 
 #------------------------------------------------------------------------------
 
