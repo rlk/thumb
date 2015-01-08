@@ -16,6 +16,7 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
+#include <etc-log.hpp>
 #include <etc-vector.hpp>
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
@@ -76,7 +77,7 @@ void app::frustum::set_view(const mat4& V)
 
 // Compute the screen corners and eye position of the given projection matrix.
 
-void app::frustum::set_proj(const mat4& P, const vec3& p)
+void app::frustum::set_proj(const mat4& P)
 {
     mat4 I = inverse(P);
 
@@ -85,7 +86,13 @@ void app::frustum::set_proj(const mat4& P, const vec3& p)
     corner[2] = I * vec3(-1,  1, -1);
     corner[3] = I * vec3( 1,  1, -1);
 
-    eye = p;
+//  vec4 v = I * vec4(0, 0, -1, 0);
+
+    eye = vec3(I[0][2] / I[3][2],
+               I[1][2] / I[3][2],
+               I[2][2] / I[3][2]);
+
+//  eye = vec3(v[0] / v[3], v[1] / v[3], v[2] / v[3]);
 
     cache_basis();
 }
