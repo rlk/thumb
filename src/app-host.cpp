@@ -625,7 +625,7 @@ void app::host::root_loop()
                     process_event(E.mk_tick(JIFFY));
 
             // Synthesize pointer motion to account for navigation.
-
+#if 0
             if (p.motion.x && p.motion.y)
             {
                 if (pointer_to_3D(&E, p.motion.x, window_rect[3] - p.motion.y))
@@ -643,7 +643,7 @@ void app::host::root_loop()
                     }
                 }
             }
-
+#endif
             // Call the render handler.
 
             swapped = false;
