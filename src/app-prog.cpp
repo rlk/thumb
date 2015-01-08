@@ -71,6 +71,7 @@ void app::prog::video_up()
     int y = ::host->get_window_y();
     int w = ::host->get_window_w();
     int h = ::host->get_window_h();
+    int c = ::host->get_window_c();
 
     // Look up the GL context parameters.
 
@@ -110,8 +111,8 @@ void app::prog::video_up()
         }
     }
 
-    SDL_ShowCursor           (::host->get_window_c() ? SDL_ENABLE : SDL_DISABLE);
-    SDL_SetWindowGrab(window, ::host->get_window_c() ? SDL_FALSE  : SDL_TRUE);
+    SDL_ShowCursor           (c ? SDL_ENABLE : SDL_DISABLE);
+    SDL_SetWindowGrab(window, c ? SDL_FALSE  : SDL_TRUE);
 
     // Initialize the OpenGL state.
 
