@@ -72,6 +72,11 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
         window_rect[2] = hmd->Resolution.w;
         window_rect[3] = hmd->Resolution.h;
 
+        viewport[0]    = 0;
+        viewport[1]    = 0;
+        viewport[2]    = hmd->Resolution.w;
+        viewport[3]    = hmd->Resolution.h;
+
         // Determine the buffer size required by each eye of the current HMD.
 
         ovrSizei sz0 = ovrHmd_GetFovTextureSize(hmd, ovrEye_Left,
@@ -145,8 +150,7 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
         mat4 O = getMatrix4f(OVR::Matrix4f(q.Inverted()));
         mat4 T = translation(-p);
 
-        frust[i]->set_proj(projection[i] * O * T, p);
-        frustgui->set_proj(projection[0] * O, vec3());
+        frust[i]->set_proj(projection[i] * O * T);
     }
 
     // Configure OVR to render to the given channels.
