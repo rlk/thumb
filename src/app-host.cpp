@@ -544,12 +544,12 @@ void app::host::root_loop()
 
             case SDL_MOUSEBUTTONDOWN:
                 process_event(E.mk_click(e.button.button,
-                    SDL_GetModState(), true));
+                                         SDL_GetModState(), true));
                 break;
 
             case SDL_MOUSEBUTTONUP:
                 process_event(E.mk_click(e.button.button,
-                    SDL_GetModState(), false));
+                                         SDL_GetModState(), false));
                 break;
 
             case SDL_MOUSEWHEEL:
@@ -570,13 +570,13 @@ void app::host::root_loop()
 #endif
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,
-                    SDL_GetModState(), true));
+                                           SDL_GetModState(), true));
                 break;
 
             case SDL_KEYUP:
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,
-                    SDL_GetModState(), false));
+                                           SDL_GetModState(), false));
                 break;
 
             case SDL_TEXTINPUT:
@@ -585,18 +585,18 @@ void app::host::root_loop()
 
             case SDL_JOYAXISMOTION:
                 process_event(program->axis_remap(E.mk_axis(e.jaxis.which,
-                    e.jaxis.axis,
-                    e.jaxis.value)));
+                                                            e.jaxis.axis,
+                                                            e.jaxis.value)));
                 break;
 
             case SDL_JOYBUTTONDOWN:
                 process_event(E.mk_button(e.jbutton.which,
-                    e.jbutton.button, true));
+                                          e.jbutton.button, true));
                 break;
 
             case SDL_JOYBUTTONUP:
                 process_event(E.mk_button(e.jbutton.which,
-                    e.jbutton.button, false));
+                                          e.jbutton.button, false));
                 break;
 
             case SDL_USEREVENT:
