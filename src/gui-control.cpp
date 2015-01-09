@@ -19,6 +19,7 @@
 #include <wrl-light.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
+#include <etc-dir.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -472,8 +473,9 @@ cnt::config_panel::config_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
     const std::string b((const char *) glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     const std::string s = "OpenGL " + a + " GLSL " + b;
+    const std::string f = "config" + std::string(1, PATH_SEPARATOR) + "common";
 
-    gui::selector *S = new gui::selector("config/common", ".xml");
+    gui::selector *S = new gui::selector(f, ".xml");
 
     add((new gui::frame)->
         add((new gui::vgroup)->

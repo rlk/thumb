@@ -1235,7 +1235,7 @@ void gui::selector::mov_dir(std::string name)
     {
         // Remove the trailing directory from the CWD.
 
-        std::string::size_type s = curr.rfind("/");
+        std::string::size_type s = curr.rfind(PATH_SEPARATOR);
 
         if (s)
         {
@@ -1244,7 +1244,7 @@ void gui::selector::mov_dir(std::string name)
             else
                 curr.erase( );
         }
-        else curr = "/";
+        else curr = PATH_SEPARATOR;
     }
     else
     {

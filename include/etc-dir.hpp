@@ -18,6 +18,14 @@
 
 //-----------------------------------------------------------------------------
 
+#ifdef _WIN32
+#define PATH_SEPARATOR '\\'
+#define PATH_LIST_SEPARATOR ';'
+#else
+#define PATH_SEPARATOR '/'
+#define PATH_LIST_SEPARATOR ':'
+#endif
+
 std::string pathname(std::string, std::string);
 
 void dir(std::string, std::set<std::string>&,

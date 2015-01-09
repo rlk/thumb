@@ -17,6 +17,7 @@
 
 #include <app-data-pack.hpp>
 #include <app-conf.hpp>
+#include <etc-dir.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -118,7 +119,15 @@ std::string get_file_name(const void *p)
     const file_header *f = (const file_header *) p;
 
     if (f->signature == 0x02014b50)
-        return std::string((const char *) (f + 1), f->sizeof_name);
+    {
+        std::string name((const char *)(f + 1), f->sizeof_name);
+
+        for (size_t i = 0; i < name.size(); i++)
+            if (name[i] == '/')
+                name[i] = PATH_SEPARATOR;
+
+        return name;
+    }
     else
         return "";
 }
@@ -255,7 +264,7 @@ bool app::pack_archive::save(std::string name,
 void app::pack_archive::list(std::string dirname, str_set& dirs,
                                                   str_set& regs) const
 {
-    const std::string path = dirname.empty() ? dirname : dirname + "/";
+    const std::string path = dirname.empty() ? dirname : dirname + PATH_SEPARATOR;
 
     int n = get_file_count();
 
@@ -268,7 +277,7 @@ void app::pack_archive::list(std::string dirname, str_set& dirs,
         if (pathname.compare(0, path.size(), path) == 0)
         {
             std::string name(pathname, path.size());
-            std::string::size_type n = name.find('/');
+            std::string::size_type n = name.find(PATH_SEPARATOR);
 
             if (n == std::string::npos)
                 regs.insert(name);

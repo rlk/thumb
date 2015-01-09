@@ -80,25 +80,6 @@ std::string app::data::translate(const std::string& filename) const
 
 //-----------------------------------------------------------------------------
 
-#ifdef _WIN32
-#define PATH_LIST_SEP ';'
-#else
-#define PATH_LIST_SEP ':'
-#endif
-
-// Identify a valid data directory as one containing the default data file.
-#if 0
-static bool is_data_dir(std::string dir)
-{
-    std::string file(dir + "/" + DEFAULT_DATA_FILE);
-
-    if (is_dir(dir) && is_reg(file))
-        return true;
-    else
-        return false;
-}
-#endif
-
 extern unsigned char thumb_data[];
 extern unsigned int  thumb_data_len;
 
@@ -124,7 +105,7 @@ app::data::data(const std::string& filename) : filename(filename), file("")
         std::stringstream list(val);
         std::string       path;
 
-        while (std::getline(list, path, PATH_LIST_SEP))
+        while (std::getline(list, path, PATH_LIST_SEPARATOR))
             add_file_archive(path, true, rwprio++);
     }
 
@@ -135,7 +116,7 @@ app::data::data(const std::string& filename) : filename(filename), file("")
         std::stringstream list(val);
         std::string       path;
 
-        while (std::getline(list, path, PATH_LIST_SEP))
+        while (std::getline(list, path, PATH_LIST_SEPARATOR))
             add_file_archive(path, false, roprio++);
     }
 

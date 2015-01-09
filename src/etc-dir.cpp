@@ -126,10 +126,10 @@ std::string pathname(std::string path, std::string name)
         return name;
     else
     {
-        if (*(path.rbegin()) == '/')
-            return path       + name;
+        if (*(path.rbegin()) == PATH_SEPARATOR)
+            return path + name;
         else
-            return path + "/" + name;
+            return path + PATH_SEPARATOR + name;
     }
 }
 
@@ -159,7 +159,7 @@ void dir(std::string path, std::set<std::string>& dirs,
 
 bool mkpath(std::string path, bool reg)
 {
-    std::string::size_type s = path.rfind("/");
+    std::string::size_type s = path.rfind(PATH_SEPARATOR);
 
     // If we're at the root then we're successful.
 
@@ -169,7 +169,7 @@ bool mkpath(std::string path, bool reg)
     // Determine the enclosing directory path.
 
     std::string where = path;
-    where.erase(where.rfind("/"));
+    where.erase(where.rfind(PATH_SEPARATOR));
 
     // Check whether the enclosing directory exists.
 
@@ -220,7 +220,7 @@ bool get_app_res_path(std::string& path)
     if (strcmp(sys_path, res_path) == 0)
         path = std::string(sys_path);
     else
-        path = std::string(sys_path) + "/" + std::string(res_path);
+        path = std::string(sys_path) + PATH_SEPARATOR + std::string(res_path);
 
     return true;
 }
