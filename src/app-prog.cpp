@@ -25,6 +25,7 @@
 #include <ogl-opengl.hpp>
 #include <app-event.hpp>
 #include <etc-vector.hpp>
+#include <etc-log.hpp>
 
 #include <app-prog.hpp>
 #include <app-conf.hpp>
@@ -266,6 +267,24 @@ void app::prog::set_host_config(std::string config)
 
 //-----------------------------------------------------------------------------
 
+void app::prog::snap()
+{
+    static int serial = 0;
+
+    char name[16];
+
+    sprintf(name, "snap%04d.png", serial);
+    serial++;
+
+    // Take a screenshot.
+
+    screenshot(name, ::host->get_window_w(),
+                     ::host->get_window_h());
+
+    etc::log("Screenshot saved to %s", name);
+}
+
+
 bool app::prog::process_event(app::event *E)
 {
     // Give the input device an opportunity to translate the event.
@@ -279,13 +298,7 @@ bool app::prog::process_event(app::event *E)
     {
         if (E->data.key.k == key_snap)
         {
-            std::string name = ::conf->get_s("screenshot_file");
-            if (name.empty()) name = DEFAULT_SNAP_FILE;
-
-            // Take a screenshot.
-
-            screenshot(name, ::host->get_window_w(),
-                             ::host->get_window_h());
+            snap();
             return true;
         }
         if (E->data.key.k == key_init)
@@ -519,8 +532,6 @@ void app::prog::screenshot(std::string filename, int w, int h)
             snaptga(filename.c_str(), snap_p, snap_w, snap_h);
         else
             snapraw(filename.c_str(), snap_p, snap_w, snap_h);
-
-        fprintf(stderr, "%s\n", filename.c_str());
     }
 }
 
