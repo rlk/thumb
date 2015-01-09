@@ -118,6 +118,19 @@ bool is_reg(const std::string& name)
 
 //-----------------------------------------------------------------------------
 
+// Replace any path separators with OS-approriate path separators.
+
+std::string fixpath(std::string path)
+{
+    std::string temp(path);
+
+    for (size_t i = 0; i < temp.size(); i++)
+       if (temp[i] == '/')
+           temp[i] = PATH_SEPARATOR;
+
+       return temp;
+}
+
 // Compose a path name, being careful not to add unnecessary separators.
 
 std::string pathname(std::string path, std::string name)

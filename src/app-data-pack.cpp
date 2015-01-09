@@ -120,13 +120,7 @@ std::string get_file_name(const void *p)
 
     if (f->signature == 0x02014b50)
     {
-        std::string name((const char *)(f + 1), f->sizeof_name);
-
-        for (size_t i = 0; i < name.size(); i++)
-            if (name[i] == '/')
-                name[i] = PATH_SEPARATOR;
-
-        return name;
+        return fixpath(std::string((const char *)(f + 1), f->sizeof_name));
     }
     else
         return "";
@@ -229,7 +223,7 @@ bool app::pack_archive::find(std::string name) const
     int n = get_file_count();
 
     for (const void *p = get_file_first(); p && n; p = get_file_next(p), n--)
-        if (get_file_name(p) == name)
+        if (get_file_name(p) == fixpath(name))
             return true;
 
     return false;
@@ -242,7 +236,7 @@ app::buffer_p app::pack_archive::load(std::string name) const
     int n = get_file_count();
 
     for (const void *p = get_file_first(); p && n; p = get_file_next(p), n--)
-        if (get_file_name(p) == name)
+        if (get_file_name(p) == fixpath(name))
         {
             const file_header *f = (const file_header *) p;
             return new pack_buffer((const char *) ptr + f->offset);

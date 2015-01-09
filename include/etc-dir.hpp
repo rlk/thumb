@@ -26,6 +26,8 @@
 #define PATH_LIST_SEPARATOR ':'
 #endif
 
+std::string fixpath(std::string path);
+
 std::string pathname(std::string, std::string);
 
 void dir(std::string, std::set<std::string>&,
