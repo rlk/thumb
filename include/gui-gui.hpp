@@ -482,6 +482,9 @@ namespace gui
         void hide();
         void draw() const;
 
+        int get_last_x() const { return last_x; }
+        int get_last_y() const { return last_y; }
+
         virtual ~dialog();
     };
 }
