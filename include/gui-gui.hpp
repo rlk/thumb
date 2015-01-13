@@ -386,7 +386,8 @@ namespace gui
 
         selector(std::string, std::string);
 
-        virtual std::string value() const;
+        virtual std::string value()   const;
+        virtual std::string get_dir() const;
 
         virtual void mov_dir(std::string);
         virtual void set_dir(std::string);

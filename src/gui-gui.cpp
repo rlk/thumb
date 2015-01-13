@@ -1227,6 +1227,11 @@ std::string gui::selector::value() const
         return pathname(D->value(), R->value());
 }
 
+std::string gui::selector::get_dir() const
+{
+    return D->value();
+}
+
 void gui::selector::mov_dir(std::string name)
 {
     std::string curr = D->value();
