@@ -44,7 +44,6 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
 {
     frust[0] = new app::perspective_frustum();
     frust[1] = new app::perspective_frustum();
-    frustgui = new app::perspective_frustum();
 
     ovr_Initialize();
 
@@ -106,7 +105,6 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
 
 dpy::oculus::~oculus()
 {
-    delete frustgui;
     delete frust[1];
     delete frust[0];
 
@@ -212,13 +210,15 @@ static void configure_renderer(ovrHmd hmd, ovrGLConfig *cfg)
 
 bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 {
+    const app::frustum *overlay = ::host->get_overlay();
+
     // Let the frustum project the pointer into space.
 
     double s = double(x - viewport[0]) / viewport[2];
     double t = double(y - viewport[1]) / viewport[3];
 
-    if (true) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
-        return frustgui->pointer_to_3D(E, s, t);
+    if (overlay)
+        return overlay->pointer_to_3D(E, s, t);
     else
         return false;
 }

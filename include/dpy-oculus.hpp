@@ -71,7 +71,6 @@ namespace dpy
         ovrPosef       pose[2];
         ovrTexture      tex[2];
         app::frustum *frust[2];
-        app::frustum *frustgui;
         mat4     projection[2];
 
         virtual bool process_start(app::event *);
