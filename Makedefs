@@ -20,7 +20,7 @@ ifdef DEBUG
 	CFLAGS += -g
 else
 	CONFIG  = Release
-	CFLAGS += -O2 -DNDEBUG
+	CFLAGS += -DNDEBUG -O3 -march=athlon64 -fomit-frame-pointer
 endif
 
 #------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ PKG_CONFIG = $(firstword $(wildcard /usr/local/bin/pkg-config \
 			                  /usr/bin/pkg-config) \
 			                           pkg-config)
 
-PKGS = libpng libtiff-4 mxml ode freetype2 sdl2 zlib glew
+PKGS = freetype2 libtiff-4 mxml libpng ode zlib sdl2 glew
 
 ifdef DYNAMIC
 	LIBS += $(shell $(PKG_CONFIG) --libs $(PKGS))
@@ -65,13 +65,13 @@ else
 	LIBS += $(firstword $(wildcard $(addsuffix libtiff.a,     $(LIBPATH))) -ltiff)
 	LIBS += $(firstword $(wildcard $(addsuffix libjpeg.a,     $(LIBPATH))) -ljpeg)
 	LIBS += $(firstword $(wildcard $(addsuffix libmxml.a,     $(LIBPATH))) -lmxml)
-	LIBS += $(firstword $(wildcard $(addsuffix libode.a,      $(LIBPATH))) -lode)
 	LIBS += $(firstword $(wildcard $(addsuffix libpng.a,      $(LIBPATH))) -lpng)
+	LIBS += $(firstword $(wildcard $(addsuffix libode.a,      $(LIBPATH))) -lode)
 	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH))) -lz)
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2main.a, $(LIBPATH))))
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
 	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))) -lglew)
-#	LIBS += $(firstword $(wildcard $(addsuffix libiconv.a,    $(LIBPATH))) -liconv)
+	LIBS += $(firstword $(wildcard $(addsuffix libiconv.a,    $(LIBPATH))) -liconv)
 endif
 
 CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
