@@ -141,7 +141,7 @@ namespace app
     typedef std::set<archive_p, archive_lt>                 archive_l;
     typedef std::set<archive_p, archive_lt>::iterator       archive_i;
     typedef std::set<archive_p, archive_lt>::const_iterator archive_c;
-    
+
     //-------------------------------------------------------------------------
     // Data manager
 

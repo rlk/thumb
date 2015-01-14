@@ -90,8 +90,8 @@ app::data::data(const std::string& filename) : filename(filename), file("")
 
     // Check for a home directory.
 
-    // if (char *home = getenv("HOME"))
-    //     add_file_archive(std::string(home) + "/.thumb", true, 0);
+    if (char *home = getenv("HOME"))
+        add_file_archive(std::string(home) + "/.thumb", true, 1);
 
     // Check for an AppData directory.
 
