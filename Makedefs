@@ -71,7 +71,9 @@ else
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2main.a, $(LIBPATH))))
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
 	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))) -lglew)
-	LIBS += $(firstword $(wildcard $(addsuffix libiconv.a,    $(LIBPATH))) -liconv)
+	ifdef OSX
+		LIBS += $(firstword $(wildcard $(addsuffix libiconv.a, $(LIBPATH))) -liconv)
+	endif
 endif
 
 CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
@@ -96,11 +98,7 @@ endif
 ifdef LINUX
 	OVRPATH = /usr/local/OculusSDK/LibOVR
 	ifneq (, $(wildcard $(OVRPATH)))
-		ifdef DEBUG
-			LIBS += -L$(OVRPATH)/Lib/Linux/Debug/x86_64 -lovr -lXrandr
-		else
-			LIBS += -L$(OVRPATH)/Lib/Linux/Release/x86_64 -lovr -lXrandr
-		endif
+		LIBS    += -L$(OVRPATH)/Lib/Linux/Release/x86_64 -lovr -lXrandr
 		SYSLIBS += -ludev -lX11 -lXinerama
 		CFLAGS  += -I$(OVRPATH)/Include
 		CFLAGS  += -I$(OVRPATH)/Src
