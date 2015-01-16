@@ -1,8 +1,7 @@
 #extension GL_ARB_texture_rectangle : enable
 
-uniform sampler2DRect image[4];
-uniform vec2           size[4];
-uniform mat4           P[4];
+uniform sampler2D image[4];
+uniform mat4      P[4];
 
 float blend(vec2 t, vec2 s)
 {
@@ -56,19 +55,21 @@ void main()
            * step(yy, ww) * step(-ww, xx)
            * step(zz, ww) * step(-ww, xx);
 
+    b = vec4(1.0, 1.0, 1.0, 1.0);
+
     // Compute texture coordinates for each off-screen framebuffer.
 
-    vec2 t0 = size[0] * (v0.xy / v0.w + 1.0) / 2.0;
-    vec2 t1 = size[1] * (v1.xy / v1.w + 1.0) / 2.0;
-    vec2 t2 = size[2] * (v2.xy / v2.w + 1.0) / 2.0;
-    vec2 t3 = size[3] * (v3.xy / v3.w + 1.0) / 2.0;
+    vec2 t0 = (v0.xy / v0.w + 1.0) / 2.0;
+    vec2 t1 = (v1.xy / v1.w + 1.0) / 2.0;
+    vec2 t2 = (v2.xy / v2.w + 1.0) / 2.0;
+    vec2 t3 = (v3.xy / v3.w + 1.0) / 2.0;
 
     // Sample and mix all framebuffers.
 
-    vec4 c0 = vec4(texture2DRect(image[0], t0).rgb, b.x * blend(t0, size[0]));
-    vec4 c1 = vec4(texture2DRect(image[1], t1).rgb, b.y * blend(t1, size[1]));
-    vec4 c2 = vec4(texture2DRect(image[2], t2).rgb, b.z * blend(t2, size[2]));
-    vec4 c3 = vec4(texture2DRect(image[3], t3).rgb, b.w * blend(t3, size[3]));
+    vec4 c0 = vec4(texture2D(image[0], t0).rgb, b.x * blend(t0, 1.0));
+    vec4 c1 = vec4(texture2D(image[1], t1).rgb, b.y * blend(t1, 1.0));
+    vec4 c2 = vec4(texture2D(image[2], t2).rgb, b.z * blend(t2, 1.0));
+    vec4 c3 = vec4(texture2D(image[3], t3).rgb, b.w * blend(t3, 1.0));
 
     vec3 cc = (c0.rgb * c0.a +
                c1.rgb * c1.a +

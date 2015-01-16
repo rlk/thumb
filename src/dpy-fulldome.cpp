@@ -12,6 +12,7 @@
 
 #include <cassert>
 
+#include <etc-log.hpp>
 #include <etc-vector.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
@@ -92,30 +93,22 @@ void dpy::fulldome::draw(int chanc, const dpy::channel *const *chanv, int frusi)
         if (chanc > 0 && frusc > 0)
         {
             chanv[0]->bind_color(GL_TEXTURE0);
-            program->uniform(   "P[0]", frusta[0]->get_transform(), false);
-            program->uniform("size[0]", vec2(chanv[0]->get_width(),
-                                             chanv[0]->get_height()));
+            program->uniform("P[0]", frusta[0]->get_transform(), false);
         }
         if (chanc > 1 && frusc > 1)
         {
             chanv[1]->bind_color(GL_TEXTURE1);
-            program->uniform(   "P[1]", frusta[1]->get_transform(), false);
-            program->uniform("size[1]", vec2(chanv[1]->get_width(),
-                                             chanv[1]->get_height()));
+            program->uniform("P[1]", frusta[1]->get_transform(), false);
         }
         if (chanc > 2 && frusc > 2)
         {
             chanv[2]->bind_color(GL_TEXTURE2);
-            program->uniform(   "P[2]", frusta[2]->get_transform(), false);
-            program->uniform("size[2]", vec2(chanv[2]->get_width(),
-                                             chanv[2]->get_height()));
+            program->uniform("P[2]", frusta[2]->get_transform(), false);
         }
         if (chanc > 3 && frusc > 3)
         {
             chanv[3]->bind_color(GL_TEXTURE3);
-            program->uniform(   "P[3]", frusta[3]->get_transform(), false);
-            program->uniform("size[3]", vec2(chanv[3]->get_width(),
-                                             chanv[3]->get_height()));
+            program->uniform("P[3]", frusta[3]->get_transform(), false);
         }
 
         fill(viewport[2], viewport[3], 0, 0);
