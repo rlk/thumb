@@ -45,66 +45,27 @@ dpy::display::display(app::node p)
 void dpy::display::fill(double screen_w, double screen_h,
                         int    buffer_w, int    buffer_h) const
 {
-    // Draw a screen-filling quad using screen-space vertices.
-
-    const double sw = 0.5 * screen_w;
-    const double sh = 0.5 * screen_h;
-
-    const double bw = double(buffer_w);
-    const double bh = double(buffer_h);
-
-    const double kx = bw / double(viewport[2]);
-    const double ky = bh / double(viewport[3]);
+    // Draw a screen-filling quad.
 
     glViewport(viewport[0],
                viewport[1],
-               viewport[2],
+               viewport[2], 
                viewport[3]);
 
-    // Apply the screen-space projection.
-
-    glMatrixMode(GL_PROJECTION);
+    glPushAttrib(GL_DEPTH_BUFFER_BIT);
     {
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(-sw, +sw, -sh, +sh, -1.0, +1.0);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    {
-        glPushMatrix();
-        glLoadIdentity();
-    }
-    glActiveTexture(GL_TEXTURE0);
+        glDisable(GL_DEPTH_TEST);
 
-    // Load uniforms to map from fragment coordinates to buffer coordinates.
-
-    if (const ogl::program *P = ogl::program::current)
-    {
-        P->uniform("frag_d", vec2(-viewport[0] * kx, -viewport[1] * ky));
-        P->uniform("frag_k", vec2(               kx,                ky));
+        glBegin(GL_QUADS);
+        {
+            glTexCoord2d(0, 0); glVertex2d(-1, -1);
+            glTexCoord2d(1, 0); glVertex2d(+1, -1);
+            glTexCoord2d(1, 1); glVertex2d(+1, +1);
+            glTexCoord2d(0, 1); glVertex2d(-1, +1);
+        }
+        glEnd();
     }
-
-    // Draw the screen-space quad.
-
-    glBegin(GL_QUADS);
-    {
-        glTexCoord2d(-1, -1); glVertex2d(-sw, -sh);
-        glTexCoord2d(+1, -1); glVertex2d(+sw, -sh);
-        glTexCoord2d(+1, +1); glVertex2d(+sw, +sh);
-        glTexCoord2d(-1, +1); glVertex2d(-sw, +sh);
-    }
-    glEnd();
-
-    // Revert the projection state.
-
-    glMatrixMode(GL_PROJECTION);
-    {
-        glPopMatrix();
-    }
-    glMatrixMode(GL_MODELVIEW);
-    {
-        glPopMatrix();
-    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------

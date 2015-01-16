@@ -169,7 +169,7 @@ bool dpy::anaglyph::pointer_to_3D(app::event *E, int x, int y)
     double s = double(x - viewport[0]) / viewport[2];
     double t = double(y - viewport[1]) / viewport[3];
 
-    if (0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
+    if (true) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
         return frustL->pointer_to_3D(E, s, t);
     else
         return false;
