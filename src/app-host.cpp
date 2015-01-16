@@ -568,6 +568,15 @@ void app::host::root_loop()
                     SDL_PushEvent(&Q);
                 }
 #endif
+#ifdef __linux__
+                if ((e.key.keysym.mod & KMOD_CTRL)  &&
+                    (e.key.keysym.mod & KMOD_SHIFT) &&
+                    (e.key.keysym.sym == SDLK_q))
+                {
+                    SDL_Event Q = { SDL_QUIT };
+                    SDL_PushEvent(&Q);
+                }
+#endif
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,
                                            SDL_GetModState(), true));
