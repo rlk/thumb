@@ -62,7 +62,6 @@ namespace app
         virtual void run();
         virtual void stop();
         virtual void swap();
-        virtual void snap();
         virtual void dump(std::string);
 
         virtual quat get_orientation() const;

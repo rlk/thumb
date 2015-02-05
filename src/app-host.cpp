@@ -670,7 +670,7 @@ void app::host::root_loop()
             {
                 count++;
 
-                if ((count % movie) == 0)
+                if (movie < 0 || (count % movie) == 0)
                 {
                     char buf[256];
 
@@ -689,6 +689,8 @@ void app::host::root_loop()
                                             get_window_w(),
                                             get_window_h());
                 }
+                if (movie < 0)
+                    movie = 0;
             }
         }
     }
