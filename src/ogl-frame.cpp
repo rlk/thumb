@@ -20,20 +20,28 @@
 
 //-----------------------------------------------------------------------------
 
-std::vector<ogl::frame::state> ogl::frame::stack;
+std::vector<GLuint> ogl::frame::stack;
 
 void ogl::frame::push(GLuint o, GLint x, GLint y, GLsizei w, GLsizei h)
 {
-    stack.push_back(state(o, x, y, w, h));
-    stack.back().apply();
+    glPushAttrib(GL_VIEWPORT_BIT);
+    glViewport(x, y, w, h);
+
+    stack.push_back(o);
+    glBindFramebuffer(GL_FRAMEBUFFER, stack.back());
 }
 
 void ogl::frame::pop()
 {
     stack.pop_back();
-    stack.back().apply();
-}
 
+    if (stack.empty())
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    else
+        glBindFramebuffer(GL_FRAMEBUFFER, stack.back());
+
+    glPopAttrib();
+}
 //-----------------------------------------------------------------------------
 
 ogl::frame::frame(GLsizei w, GLsizei h,
@@ -49,17 +57,6 @@ ogl::frame::frame(GLsizei w, GLsizei h,
     w(w),
     h(h)
 {
-    // If this is the first frame buffer, initialize the frame buffer stack
-    // with the on-screen frame buffer (FBO 0) and the current viewport.
-
-    if (stack.empty())
-    {
-        GLint v[4];
-
-        glGetIntegerv(GL_VIEWPORT, v);
-        stack.push_back(state(0, v[0], v[1], v[2], v[3]));
-    }
-
     init();
 }
 

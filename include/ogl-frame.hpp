@@ -11,50 +11,6 @@ namespace ogl
 {
     class frame
     {
-        struct state
-        {
-            GLuint  o;
-            GLint   x;
-            GLint   y;
-            GLsizei w;
-            GLsizei h;
-
-            state(GLuint o, GLint x, GLint y, GLsizei w, GLsizei h)
-                : o(o), x(x), y(y), w(w), h(h) { }
-
-            void apply()
-            {
-                glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, o);
-                glViewport(x, y, w, h);
-            }
-        };
-
-        static std::vector<state> stack;
-
-    protected:
-
-        static void push(GLuint, GLint, GLint, GLsizei, GLsizei);
-        static void pop();
-
-        GLenum target;
-        GLenum format;
-        GLuint buffer;
-
-        GLuint color;
-        GLuint depth;
-
-        bool has_color;
-        bool has_depth;
-        bool has_stencil;
-
-        GLsizei w;
-        GLsizei h;
-
-        void init_cube ();
-        void init_color();
-        void init_depth();
-        void init_frame();
-
     public:
 
         frame(GLsizei, GLsizei, GLenum,
@@ -82,6 +38,34 @@ namespace ogl
         GLsizei get_h()     const { return h; }
         GLuint  get_color() const { return color; }
         GLuint  get_depth() const { return depth; }
+
+    protected:
+
+        static void push(GLuint, GLint, GLint, GLsizei, GLsizei);
+        static void pop();
+
+        GLenum target;
+        GLenum format;
+        GLuint buffer;
+
+        GLuint color;
+        GLuint depth;
+
+        bool has_color;
+        bool has_depth;
+        bool has_stencil;
+
+        GLsizei w;
+        GLsizei h;
+
+        void init_cube ();
+        void init_color();
+        void init_depth();
+        void init_frame();
+
+    private:
+
+        static std::vector<GLuint> stack;
     };
 }
 
