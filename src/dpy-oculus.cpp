@@ -64,7 +64,7 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
                                       ovrTrackingCap_MagYawCorrection |
                                       ovrTrackingCap_Position, 0);
 
-        // Override the window configuration .
+        // Override the window configuration.
 
         window_rect[0] = hmd->WindowsPos.x;
         window_rect[1] = hmd->WindowsPos.y;
@@ -75,6 +75,11 @@ dpy::oculus::oculus(app::node p, int window_rect[4], int buffer_size[2])
         viewport[1]    = 0;
         viewport[2]    = hmd->Resolution.w;
         viewport[3]    = hmd->Resolution.h;
+
+        // Override the override.
+
+        window_rect[0] = p.get_i("x", window_rect[0]);
+        window_rect[1] = p.get_i("y", window_rect[1]);
 
         // Determine the buffer size required by each eye of the current HMD.
 
@@ -231,7 +236,7 @@ bool dpy::oculus::process_start(app::event *E)
     // Set the configuration and receive eye render descriptors in return.
 
     configure_renderer(hmd, &cfg);
- 
+
     ovrHmd_ConfigureRendering(hmd, &cfg.Config, ovrDistortionCap_Chromatic
                                                 | ovrDistortionCap_TimeWarp
                                                 | ovrDistortionCap_Overdrive,
