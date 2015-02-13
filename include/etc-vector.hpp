@@ -693,6 +693,11 @@ inline mat4 orthogonal(double l, double r,
 
 //------------------------------------------------------------------------------
 
+inline double mix(double a, double b, double t)
+{
+    return a * (1.0 - t) + b * t;
+}
+
 inline vec3 mix(const vec3& u, const vec3& v, double t)
 {
     return u * (1.0 - t) + v * t;
