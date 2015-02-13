@@ -47,6 +47,17 @@ namespace dev
         const int axis_turn_U;
         const int axis_turn_D;
 
+        const int button_move_R;
+        const int button_move_L;
+        const int button_move_U;
+        const int button_move_D;
+        const int button_move_B;
+        const int button_move_F;
+        const int button_turn_R;
+        const int button_turn_L;
+        const int button_turn_U;
+        const int button_turn_D;
+
         // Current state
 
         double    value_move_R;
@@ -60,6 +71,17 @@ namespace dev
         double    value_turn_U;
         double    value_turn_D;
 
+        double    state_move_R;
+        double    state_move_L;
+        double    state_move_U;
+        double    state_move_D;
+        double    state_move_B;
+        double    state_move_F;
+        double    state_turn_R;
+        double    state_turn_L;
+        double    state_turn_U;
+        double    state_turn_D;
+
         double    dx;
         double    dy;
         double    dz;
@@ -68,8 +90,9 @@ namespace dev
 
         // Event handlers
 
-        bool process_axis(app::event *);
-        bool process_tick(app::event *);
+        bool process_button(app::event *);
+        bool process_axis  (app::event *);
+        bool process_tick  (app::event *);
     };
 }
 
