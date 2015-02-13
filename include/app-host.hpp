@@ -87,6 +87,8 @@ namespace app
         bool get_bench_mode() const { return (bench != 0); }
         void set_bench_mode(int i)  { bench = i; }
 
+        double get_time_since_event() const { return time_since_event; }
+
         void reconfig(std::string);
 
     private:
@@ -152,6 +154,7 @@ namespace app
         int device;
 
         double distance;
+        double time_since_event;
 
         std::vector<dpy::display *> displays;
         std::vector<dpy::channel *> channels;

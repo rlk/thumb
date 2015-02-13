@@ -927,7 +927,10 @@ bool app::host::process_event(event *E)
 
     if (program->process_event(E)
         ||       process_calib(E))
+    {
+        time_since_event = 0;
         return true;
+    }
 
     // Handle the event locally, as needed.
 
@@ -939,7 +942,9 @@ bool app::host::process_event(event *E)
     case E_CLOSE: process_close(E); sync(); return true;
     case E_FLUSH: ::glob->fini();
                   ::glob->init(); return true;
+    case E_TICK: time_since_event += E->data.tick.dt;
     }
+
     return false;
 }
 
