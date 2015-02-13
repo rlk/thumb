@@ -31,10 +31,13 @@ namespace dev
 
         double deaden(double) const;
 
-        // Configuration
+        // Gamepad dead zone and filter coefficients.
 
+        const int    move_mode;
         const double dead_zone;
         const double filter;
+
+        // Gamepad axis for each degree of freedom.
 
         const int axis_move_R;
         const int axis_move_L;
@@ -47,6 +50,8 @@ namespace dev
         const int axis_turn_U;
         const int axis_turn_D;
 
+        // Gamepad button for each degree of freedom.
+
         const int button_move_R;
         const int button_move_L;
         const int button_move_U;
@@ -58,33 +63,35 @@ namespace dev
         const int button_turn_U;
         const int button_turn_D;
 
-        // Current state
+        // Current value of each gamepad axis.
 
-        double    value_move_R;
-        double    value_move_L;
-        double    value_move_U;
-        double    value_move_D;
-        double    value_move_B;
-        double    value_move_F;
-        double    value_turn_R;
-        double    value_turn_L;
-        double    value_turn_U;
-        double    value_turn_D;
+        double    k_move_R;
+        double    k_move_L;
+        double    k_move_U;
+        double    k_move_D;
+        double    k_move_B;
+        double    k_move_F;
+        double    k_turn_R;
+        double    k_turn_L;
+        double    k_turn_U;
+        double    k_turn_D;
 
-        double    state_move_R;
-        double    state_move_L;
-        double    state_move_U;
-        double    state_move_D;
-        double    state_move_B;
-        double    state_move_F;
-        double    state_turn_R;
-        double    state_turn_L;
-        double    state_turn_U;
-        double    state_turn_D;
+        // Current state of each gamepad button.
 
-        double    dx;
-        double    dy;
-        double    dz;
+        double    b_move_R;
+        double    b_move_L;
+        double    b_move_U;
+        double    b_move_D;
+        double    b_move_B;
+        double    b_move_F;
+        double    b_turn_R;
+        double    b_turn_L;
+        double    b_turn_U;
+        double    b_turn_D;
+
+        // Filtered differentials.
+
+        vec3      dpos;
         double    dyaw;
         double    dpitch;
 

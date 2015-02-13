@@ -27,8 +27,9 @@
 
 dev::gamepad::gamepad() :
 
-    dead_zone(0.2),
-    filter   (0.9),
+    move_mode    (::conf->get_i("gamepad_move_mode", 1)),
+    dead_zone    (::conf->get_f("gamepad_dead_zone", 0.2)),
+    filter       (::conf->get_f("gamepad_filter", 0.9)),
 
     axis_move_R  (::conf->get_i("gamepad_axis_move_R",    0)),
     axis_move_L  (::conf->get_i("gamepad_axis_move_L",   -1)),
@@ -41,42 +42,39 @@ dev::gamepad::gamepad() :
     axis_turn_U  (::conf->get_i("gamepad_axis_turn_U",   -1)),
     axis_turn_D  (::conf->get_i("gamepad_axis_turn_D",    4)),
 
-    button_move_R(::conf->get_i("gamepad_button_move_R", 0)),
-    button_move_L(::conf->get_i("gamepad_button_move_L", 1)),
-    button_move_U(::conf->get_i("gamepad_button_move_U", 2)),
-    button_move_D(::conf->get_i("gamepad_button_move_D", 3)),
-    button_move_B(::conf->get_i("gamepad_button_move_B", 4)),
-    button_move_F(::conf->get_i("gamepad_button_move_F", 5)),
+    button_move_R(::conf->get_i("gamepad_button_move_R", -1)),
+    button_move_L(::conf->get_i("gamepad_button_move_L", -1)),
+    button_move_U(::conf->get_i("gamepad_button_move_U", -1)),
+    button_move_D(::conf->get_i("gamepad_button_move_D", -1)),
+    button_move_B(::conf->get_i("gamepad_button_move_B", -1)),
+    button_move_F(::conf->get_i("gamepad_button_move_F", -1)),
     button_turn_R(::conf->get_i("gamepad_button_turn_R", -1)),
     button_turn_L(::conf->get_i("gamepad_button_turn_L", -1)),
     button_turn_U(::conf->get_i("gamepad_button_turn_U", -1)),
     button_turn_D(::conf->get_i("gamepad_button_turn_D", -1)),
 
-    value_move_R(0),
-    value_move_L(0),
-    value_move_U(0),
-    value_move_D(0),
-    value_move_B(0),
-    value_move_F(0),
-    value_turn_R(0),
-    value_turn_L(0),
-    value_turn_U(0),
-    value_turn_D(0),
+    k_move_R(0),
+    k_move_L(0),
+    k_move_U(0),
+    k_move_D(0),
+    k_move_B(0),
+    k_move_F(0),
+    k_turn_R(0),
+    k_turn_L(0),
+    k_turn_U(0),
+    k_turn_D(0),
 
-    state_move_R(0),
-    state_move_L(0),
-    state_move_U(0),
-    state_move_D(0),
-    state_move_B(0),
-    state_move_F(0),
-    state_turn_R(0),
-    state_turn_L(0),
-    state_turn_U(0),
-    state_turn_D(0),
+    b_move_R(0),
+    b_move_L(0),
+    b_move_U(0),
+    b_move_D(0),
+    b_move_B(0),
+    b_move_F(0),
+    b_turn_R(0),
+    b_turn_L(0),
+    b_turn_U(0),
+    b_turn_D(0),
 
-    dx    (0),
-    dy    (0),
-    dz    (0),
     dyaw  (0),
     dpitch(0)
 {
@@ -114,16 +112,16 @@ bool dev::gamepad::process_button(app::event *E)
     const int    b = E->data.button.b;
     const double d = E->data.button.d ? +1.0 : -1.0;
 
-    if (b == button_move_R) { state_move_R = d; return true; }
-    if (b == button_move_L) { state_move_L = d; return true; }
-    if (b == button_move_U) { state_move_U = d; return true; }
-    if (b == button_move_D) { state_move_D = d; return true; }
-    if (b == button_move_B) { state_move_B = d; return true; }
-    if (b == button_move_F) { state_move_F = d; return true; }
-    if (b == button_turn_R) { state_turn_R = d; return true; }
-    if (b == button_turn_L) { state_turn_L = d; return true; }
-    if (b == button_turn_U) { state_turn_U = d; return true; }
-    if (b == button_turn_D) { state_turn_D = d; return true; }
+    if (b == button_move_R) { b_move_R = d; return true; }
+    if (b == button_move_L) { b_move_L = d; return true; }
+    if (b == button_move_U) { b_move_U = d; return true; }
+    if (b == button_move_D) { b_move_D = d; return true; }
+    if (b == button_move_B) { b_move_B = d; return true; }
+    if (b == button_move_F) { b_move_F = d; return true; }
+    if (b == button_turn_R) { b_turn_R = d; return true; }
+    if (b == button_turn_L) { b_turn_L = d; return true; }
+    if (b == button_turn_U) { b_turn_U = d; return true; }
+    if (b == button_turn_D) { b_turn_D = d; return true; }
 
     return false;
 }
@@ -135,16 +133,16 @@ bool dev::gamepad::process_axis(app::event *E)
     const int    a = E->data.axis.a;
     const double v = E->data.axis.v / 32768.0;
 
-    if (a == axis_move_R) { value_move_R = v; return true; }
-    if (a == axis_move_L) { value_move_L = v; return true; }
-    if (a == axis_move_U) { value_move_U = v; return true; }
-    if (a == axis_move_D) { value_move_D = v; return true; }
-    if (a == axis_move_B) { value_move_B = v; return true; }
-    if (a == axis_move_F) { value_move_F = v; return true; }
-    if (a == axis_turn_R) { value_turn_R = v; return true; }
-    if (a == axis_turn_L) { value_turn_L = v; return true; }
-    if (a == axis_turn_U) { value_turn_U = v; return true; }
-    if (a == axis_turn_D) { value_turn_D = v; return true; }
+    if (a == axis_move_R) { k_move_R = v; return true; }
+    if (a == axis_move_L) { k_move_L = v; return true; }
+    if (a == axis_move_U) { k_move_U = v; return true; }
+    if (a == axis_move_D) { k_move_D = v; return true; }
+    if (a == axis_move_B) { k_move_B = v; return true; }
+    if (a == axis_move_F) { k_move_F = v; return true; }
+    if (a == axis_turn_R) { k_turn_R = v; return true; }
+    if (a == axis_turn_L) { k_turn_L = v; return true; }
+    if (a == axis_turn_U) { k_turn_U = v; return true; }
+    if (a == axis_turn_D) { k_turn_D = v; return true; }
 
     return false;
 }
@@ -155,22 +153,16 @@ bool dev::gamepad::process_tick(app::event *E)
     const double dp = dt * 10;
     const double dr = dt * to_radians(45);
 
-    const double nx     = deaden(value_move_R - value_move_L)
-                               + state_move_R - state_move_L;
-    const double ny     = deaden(value_move_U - value_move_D)
-                               + state_move_U - state_move_D;
-    const double nz     = deaden(value_move_B - value_move_F)
-                               + state_move_B - state_move_F;
-    const double nyaw   = deaden(value_turn_R - value_turn_L)
-                               + state_turn_R - state_turn_L;
-    const double npitch = deaden(value_turn_U - value_turn_D)
-                               + state_turn_U - state_turn_D;
+    const vec3 npos(deaden(k_move_R - k_move_L) + b_move_R - b_move_L,
+                    deaden(k_move_U - k_move_D) + b_move_U - b_move_D,
+                    deaden(k_move_B - k_move_F) + b_move_B - b_move_F);
 
-    dx     = filter * dx     + (1.0 - filter) * nx;
-    dy     = filter * dy     + (1.0 - filter) * ny;
-    dz     = filter * dz     + (1.0 - filter) * nz;
-    dyaw   = filter * dyaw   + (1.0 - filter) * nyaw;
-    dpitch = filter * dpitch + (1.0 - filter) * npitch;
+    const double nyaw   = deaden(k_turn_R - k_turn_L) + b_turn_R - b_turn_L;
+    const double npitch = deaden(k_turn_U - k_turn_D) + b_turn_U - b_turn_D;
+
+    dpos   = mix(npos,   dpos,   filter);
+    dyaw   = mix(nyaw,   dyaw,   filter);
+    dpitch = mix(npitch, dpitch, filter);
 
     quat   q = ::host->get_orientation();
     double p = get_p(q) + dr * dpitch;
@@ -182,7 +174,10 @@ bool dev::gamepad::process_tick(app::event *E)
     ::host->set_orientation(quat(vec3(0, 1, 0), t)
                           * quat(vec3(1, 0, 0), p));
 
-    ::host->offset_position(mat4(q) * vec3(dp * dx, dp * dy, dp * dz));
+    if (move_mode)
+        ::host->offset_position(dpos * dp);
+    else
+        ::host->offset_position(mat4(q) * dpos * dp);
 
     return false;
 }
