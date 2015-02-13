@@ -27,9 +27,9 @@
 
 dev::gamepad::gamepad() :
 
-    move_mode    (::conf->get_i("gamepad_move_mode", 1)),
+    move_mode    (::conf->get_i("gamepad_move_mode", 0)),
     dead_zone    (::conf->get_f("gamepad_dead_zone", 0.2)),
-    filter       (::conf->get_f("gamepad_filter", 0.9)),
+    filter       (::conf->get_f("gamepad_filter",    0.9)),
 
     axis_move_R  (::conf->get_i("gamepad_axis_move_R",    0)),
     axis_move_L  (::conf->get_i("gamepad_axis_move_L",   -1)),
@@ -110,7 +110,7 @@ static double get_t(const quat& q)
 bool dev::gamepad::process_button(app::event *E)
 {
     const int    b = E->data.button.b;
-    const double d = E->data.button.d ? +1.0 : -1.0;
+    const double d = E->data.button.d ? 1 : 0;
 
     if (b == button_move_R) { b_move_R = d; return true; }
     if (b == button_move_L) { b_move_L = d; return true; }
@@ -153,6 +153,8 @@ bool dev::gamepad::process_tick(app::event *E)
     const double dp = dt * 10;
     const double dr = dt * to_radians(45);
 
+    // Calculate position and orientation differentials.
+
     const vec3 npos(deaden(k_move_R - k_move_L) + b_move_R - b_move_L,
                     deaden(k_move_U - k_move_D) + b_move_U - b_move_D,
                     deaden(k_move_B - k_move_F) + b_move_B - b_move_F);
@@ -160,9 +162,13 @@ bool dev::gamepad::process_tick(app::event *E)
     const double nyaw   = deaden(k_turn_R - k_turn_L) + b_turn_R - b_turn_L;
     const double npitch = deaden(k_turn_U - k_turn_D) + b_turn_U - b_turn_D;
 
+    // Filter the input differentials.
+
     dpos   = mix(npos,   dpos,   filter);
     dyaw   = mix(nyaw,   dyaw,   filter);
     dpitch = mix(npitch, dpitch, filter);
+
+    // Compute and apply the new orientation.
 
     quat   q = ::host->get_orientation();
     double p = get_p(q) + dr * dpitch;
@@ -173,6 +179,8 @@ bool dev::gamepad::process_tick(app::event *E)
 
     ::host->set_orientation(quat(vec3(0, 1, 0), t)
                           * quat(vec3(1, 0, 0), p));
+
+    // Compute and apply the change in position.
 
     if (move_mode)
         ::host->offset_position(dpos * dp);
