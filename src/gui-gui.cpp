@@ -1479,11 +1479,6 @@ void gui::dialog::click(int m, bool d)
     {
         etc::log(e.what());
     }
-
-    // Activation may have resulted in widget deletion.  Confirm the focus.
-
-    // if (d == false)
-    //     focus = root->enter(last_x, last_y);
 }
 
 void gui::dialog::key(int k, int m)
