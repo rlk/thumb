@@ -36,33 +36,29 @@ namespace dev
         const double dead_zone;
         const double filter;
 
-        const int axis_pos_x;
-        const int axis_neg_x;
-        const int axis_pos_y;
-        const int axis_neg_y;
-        const int axis_pos_z;
-        const int axis_neg_z;
-        const int axis_pos_yaw;
-        const int axis_neg_yaw;
-        const int axis_pos_pitch;
-        const int axis_neg_pitch;
-        const int axis_pos_roll;
-        const int axis_neg_roll;
+        const int axis_move_R;
+        const int axis_move_L;
+        const int axis_move_U;
+        const int axis_move_D;
+        const int axis_move_B;
+        const int axis_move_F;
+        const int axis_turn_R;
+        const int axis_turn_L;
+        const int axis_turn_U;
+        const int axis_turn_D;
 
         // Current state
 
-        double    value_pos_x;
-        double    value_neg_x;
-        double    value_pos_y;
-        double    value_neg_y;
-        double    value_pos_z;
-        double    value_neg_z;
-        double    value_pos_yaw;
-        double    value_neg_yaw;
-        double    value_pos_pitch;
-        double    value_neg_pitch;
-        double    value_pos_roll;
-        double    value_neg_roll;
+        double    value_move_R;
+        double    value_move_L;
+        double    value_move_U;
+        double    value_move_D;
+        double    value_move_B;
+        double    value_move_F;
+        double    value_turn_R;
+        double    value_turn_L;
+        double    value_turn_U;
+        double    value_turn_D;
 
         double    dx;
         double    dy;

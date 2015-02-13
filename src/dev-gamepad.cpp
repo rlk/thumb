@@ -30,31 +30,27 @@ dev::gamepad::gamepad() :
     dead_zone(0.2),
     filter   (0.9),
 
-    axis_pos_x     (::conf->get_i("gamepad_axis_pos_x",      0)),
-    axis_neg_x     (::conf->get_i("gamepad_axis_neg_x",     -1)),
-    axis_pos_y     (::conf->get_i("gamepad_axis_pos_y",      5)),
-    axis_neg_y     (::conf->get_i("gamepad_axis_neg_y",      2)),
-    axis_pos_z     (::conf->get_i("gamepad_axis_pos_z",      1)),
-    axis_neg_z     (::conf->get_i("gamepad_axis_neg_z",     -1)),
-    axis_pos_yaw   (::conf->get_i("gamepad_axis_pos_yaw",   -1)),
-    axis_neg_yaw   (::conf->get_i("gamepad_axis_neg_yaw",    3)),
-    axis_pos_pitch (::conf->get_i("gamepad_axis_pos_pitch", -1)),
-    axis_neg_pitch (::conf->get_i("gamepad_axis_neg_pitch",  4)),
-    axis_pos_roll  (::conf->get_i("gamepad_axis_pos_roll ", -1)),
-    axis_neg_roll  (::conf->get_i("gamepad_axis_neg_roll ", -1)),
+    axis_move_R(::conf->get_i("gamepad_axis_move_R",  0)),
+    axis_move_L(::conf->get_i("gamepad_axis_move_L", -1)),
+    axis_move_U(::conf->get_i("gamepad_axis_move_U",  5)),
+    axis_move_D(::conf->get_i("gamepad_axis_move_D",  2)),
+    axis_move_B(::conf->get_i("gamepad_axis_move_B",  1)),
+    axis_move_F(::conf->get_i("gamepad_axis_move_F", -1)),
+    axis_turn_R(::conf->get_i("gamepad_axis_turn_R", -1)),
+    axis_turn_L(::conf->get_i("gamepad_axis_turn_L",  3)),
+    axis_turn_U(::conf->get_i("gamepad_axis_turn_U", -1)),
+    axis_turn_D(::conf->get_i("gamepad_axis_turn_D",  4)),
 
-    value_pos_x    (0),
-    value_neg_x    (0),
-    value_pos_y    (0),
-    value_neg_y    (0),
-    value_pos_z    (0),
-    value_neg_z    (0),
-    value_pos_yaw  (0),
-    value_neg_yaw  (0),
-    value_pos_pitch(0),
-    value_neg_pitch(0),
-    value_pos_roll (0),
-    value_neg_roll (0),
+    value_move_R(0),
+    value_move_L(0),
+    value_move_U(0),
+    value_move_D(0),
+    value_move_B(0),
+    value_move_F(0),
+    value_turn_R(0),
+    value_turn_L(0),
+    value_turn_U(0),
+    value_turn_D(0),
 
     dx    (0),
     dy    (0),
@@ -98,18 +94,16 @@ bool dev::gamepad::process_axis(app::event *E)
     const int    a = E->data.axis.a;
     const double v = E->data.axis.v / 32768.0;
 
-    if (a == axis_pos_x)     { value_pos_x     = v; return true; }
-    if (a == axis_neg_x)     { value_neg_x     = v; return true; }
-    if (a == axis_pos_y)     { value_pos_y     = v; return true; }
-    if (a == axis_neg_y)     { value_neg_y     = v; return true; }
-    if (a == axis_pos_z)     { value_pos_z     = v; return true; }
-    if (a == axis_neg_z)     { value_neg_z     = v; return true; }
-    if (a == axis_pos_yaw)   { value_pos_yaw   = v; return true; }
-    if (a == axis_neg_yaw)   { value_neg_yaw   = v; return true; }
-    if (a == axis_pos_pitch) { value_pos_pitch = v; return true; }
-    if (a == axis_neg_pitch) { value_neg_pitch = v; return true; }
-    if (a == axis_pos_roll)  { value_pos_roll  = v; return true; }
-    if (a == axis_neg_roll)  { value_neg_roll  = v; return true; }
+    if (a == axis_move_R) { value_move_R = v; return true; }
+    if (a == axis_move_L) { value_move_L = v; return true; }
+    if (a == axis_move_U) { value_move_U = v; return true; }
+    if (a == axis_move_D) { value_move_D = v; return true; }
+    if (a == axis_move_B) { value_move_B = v; return true; }
+    if (a == axis_move_F) { value_move_F = v; return true; }
+    if (a == axis_turn_R) { value_turn_R = v; return true; }
+    if (a == axis_turn_L) { value_turn_L = v; return true; }
+    if (a == axis_turn_U) { value_turn_U = v; return true; }
+    if (a == axis_turn_D) { value_turn_D = v; return true; }
 
     return false;
 }
@@ -120,11 +114,11 @@ bool dev::gamepad::process_tick(app::event *E)
     const double dp = dt * 10;
     const double dr = dt * to_radians(45);
 
-    const double nx     = deaden(value_pos_x     - value_neg_x);
-    const double ny     = deaden(value_pos_y     - value_neg_y);
-    const double nz     = deaden(value_pos_z     - value_neg_z);
-    const double nyaw   = deaden(value_pos_yaw   - value_neg_yaw);
-    const double npitch = deaden(value_pos_pitch - value_neg_pitch);
+    const double nx     = deaden(value_move_R - value_move_L);
+    const double ny     = deaden(value_move_U - value_move_D);
+    const double nz     = deaden(value_move_B - value_move_F);
+    const double nyaw   = deaden(value_turn_R - value_turn_L);
+    const double npitch = deaden(value_turn_U - value_turn_D);
 
     dx     = filter * dx     + (1.0 - filter) * nx;
     dy     = filter * dy     + (1.0 - filter) * ny;
