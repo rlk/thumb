@@ -463,9 +463,12 @@ namespace gui
     {
     protected:
 
+        static widget *focus;
+        static widget *input;
+
+        friend class widget;
+
         widget *root;
-        widget *focus;
-        widget *input;
 
         int last_x;
         int last_y;

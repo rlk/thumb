@@ -40,6 +40,9 @@ gui::widget::~widget()
         delete (*i);
 
     child.clear();
+
+    if (gui::dialog::focus == this) gui::dialog::focus = 0;
+    if (gui::dialog::input == this) gui::dialog::input = 0;
 }
 
 gui::widget *gui::widget::click(int, int, int, bool d)
@@ -1441,11 +1444,12 @@ static void draw_cursor(int x, int y)
 //-----------------------------------------------------------------------------
 // Top level dialog
 
+gui::widget *gui::dialog::input = 0;
+gui::widget *gui::dialog::focus = 0;
+
 gui::dialog::dialog()
 {
-    root  = 0;
-    focus = 0;
-    input = 0;
+    root = 0;
 }
 
 gui::dialog::~dialog()
