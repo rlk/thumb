@@ -1472,8 +1472,8 @@ void gui::dialog::click(int m, bool d)
 
     try
     {
-        if (focus)
-            input = focus->click(last_x, last_y, m, d);
+        if ((focus =  root->enter(last_x, last_y)))
+             input = focus->click(last_x, last_y, m, d);
     }
     catch (std::runtime_error& e)
     {
