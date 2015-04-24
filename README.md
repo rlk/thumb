@@ -13,6 +13,7 @@ Thumb depends upon a number of external libraries. Binary distributions of Thumb
 - [zlib](http://www.zlib.net) decompresses data.
 - [ODE](http://ode.org) performs physics simulation.
 - [zip](http://www.info-zip.org/Zip.html) helps embed static data.
+- [mxml](http://www.minixml.org/) small XML parsing library
 
 Optionally,
 
