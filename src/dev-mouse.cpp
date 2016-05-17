@@ -26,16 +26,40 @@
 //-----------------------------------------------------------------------------
 
 dev::mouse::mouse() :
-    speed(5.0),
-    dragging(false),
-    modifier(0)
+    key_move_L(::conf->get_i("key_move_L", SDL_SCANCODE_A)),
+    key_move_R(::conf->get_i("key_move_R", SDL_SCANCODE_D)),
+    key_move_D(::conf->get_i("key_move_D", SDL_SCANCODE_F)),
+    key_move_U(::conf->get_i("key_move_U", SDL_SCANCODE_R)),
+    key_move_F(::conf->get_i("key_move_F", SDL_SCANCODE_W)),
+    key_move_B(::conf->get_i("key_move_B", SDL_SCANCODE_S)),
+
+    key_turn_L(::conf->get_i("key_turn_L", SDL_SCANCODE_Q)),
+    key_turn_R(::conf->get_i("key_turn_R", SDL_SCANCODE_E)),
+    key_turn_D(::conf->get_i("key_turn_D", SDL_SCANCODE_G)),
+    key_turn_U(::conf->get_i("key_turn_U", SDL_SCANCODE_T)),
+
+    filter(::conf->get_f("key_motion_filter", 0.9)),
+    speed (::conf->get_f("key_motion_speed",  5.0)),
+    mode  (::conf->get_i("key_motion_mode",   0)),
+
+    dragging(0),
+    modifier(0),
+
+    move_L(0),
+    move_R(0),
+    move_D(0),
+    move_U(0),
+    move_F(0),
+    move_B(0),
+
+    turn_L(0),
+    turn_R(0),
+    turn_D(0),
+    turn_U(0),
+
+    dyaw  (0),
+    dpitch(0)
 {
-    key_move_F = conf->get_i("key_move_F", SDL_SCANCODE_W);
-    key_move_L = conf->get_i("key_move_L", SDL_SCANCODE_A);
-    key_move_R = conf->get_i("key_move_R", SDL_SCANCODE_D);
-    key_move_B = conf->get_i("key_move_B", SDL_SCANCODE_S);
-    key_move_U = conf->get_i("key_move_U", SDL_SCANCODE_E);
-    key_move_D = conf->get_i("key_move_D", SDL_SCANCODE_Q);
 }
 
 dev::mouse::~mouse()
@@ -110,20 +134,25 @@ bool dev::mouse::process_key(app::event *E)
     const int  k = E->data.key.k;
     const int  m = E->data.key.m;
 
-    int dd = d ? +1 : -1;
+    int dd = d ? 1 : 0;
 
     modifier = m;
 
     // Handle motion keys.
 
-    if      (k == key_move_L) { motion[0] -= dd; return true; }
-    else if (k == key_move_R) { motion[0] += dd; return true; }
-    else if (k == key_move_D) { motion[1] -= dd; return true; }
-    else if (k == key_move_U) { motion[1] += dd; return true; }
-    else if (k == key_move_F) { motion[2] -= dd; return true; }
-    else if (k == key_move_B) { motion[2] += dd; return true; }
+    if (k == key_move_L) { move_L = dd; return true; }
+    if (k == key_move_R) { move_R = dd; return true; }
+    if (k == key_move_D) { move_D = dd; return true; }
+    if (k == key_move_U) { move_U = dd; return true; }
+    if (k == key_move_F) { move_F = dd; return true; }
+    if (k == key_move_B) { move_B = dd; return true; }
 
-    // Teleport home. Allow other layers to respond by NOT claiming the event.
+    if (k == key_turn_L) { turn_L = dd; return true; }
+    if (k == key_turn_R) { turn_R = dd; return true; }
+    if (k == key_turn_D) { turn_D = dd; return true; }
+    if (k == key_turn_U) { turn_U = dd; return true; }
+
+    // Teleport home.
 
     else if (d)
     {
@@ -134,17 +163,50 @@ bool dev::mouse::process_key(app::event *E)
         }
     }
 
+    //  Allow other layers to respond by not claiming the event.
+
     return false;
 }
 
 bool dev::mouse::process_tick(app::event *E)
 {
-    double kp = E->data.tick.dt * speed;
+    const double dt = E->data.tick.dt;
+    const double dp = dt * speed * ((modifier & KMOD_SHIFT) ? 10.0 : 1.0);
+    const double dr = dt * to_radians(45);
 
-    if (modifier & KMOD_SHIFT) kp *= 10.0;
+    // Calculate position and orientation differentials.
 
-    if (motion * motion > 0)
-        ::host->offset_position(mat3(::host->get_orientation()) * motion * kp);
+    const vec3 npos(move_R - move_L,
+                  + move_U - move_D,
+                  + move_B - move_F);
+
+    const double nyaw   = turn_L - turn_R;
+    const double npitch = turn_U - turn_D;
+
+    // Filter the input differentials.
+
+    dpos   = mix(npos,   dpos,   filter);
+    dyaw   = mix(nyaw,   dyaw,   filter);
+    dpitch = mix(npitch, dpitch, filter);
+
+    // Compute and apply the new orientation.
+
+    quat   q = ::host->get_orientation();
+    double p = get_p(q) + dr * dpitch;
+    double t = get_t(q) + dr * dyaw;
+
+    p = std::max(p, -PI / 2.0);
+    p = std::min(p,  PI / 2.0);
+
+    ::host->set_orientation(quat(vec3(0, 1, 0), t)
+                          * quat(vec3(1, 0, 0), p));
+
+    // Compute and apply the change in position.
+
+    if (mode)
+        ::host->offset_position(dpos * dp);
+    else
+        ::host->offset_position(mat4(q) * dpos * dp);
 
     return false;
 }

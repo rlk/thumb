@@ -40,16 +40,40 @@ namespace dev
         int key_move_F;
         int key_move_B;
 
+        int key_turn_L;
+        int key_turn_R;
+        int key_turn_D;
+        int key_turn_U;
+
+        double filter;
         double speed;
+        int    mode;
 
         // Navigation state
 
         bool dragging;
         int  modifier;
-        vec3 motion;
+
+        int move_L;
+        int move_R;
+        int move_D;
+        int move_U;
+        int move_F;
+        int move_B;
+
+        int turn_L;
+        int turn_R;
+        int turn_D;
+        int turn_U;
 
         quat last_q;
         quat curr_q;
+
+        // Filtered differentials.
+
+        vec3      dpos;
+        double    dyaw;
+        double    dpitch;
 
         // Event handlers
 
