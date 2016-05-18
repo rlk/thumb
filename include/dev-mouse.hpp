@@ -13,6 +13,8 @@
 #ifndef DEV_MOUSE
 #define DEV_MOUSE
 
+#include <SDL_keyboard.h>
+
 #include <dev-input.hpp>
 
 //-----------------------------------------------------------------------------
@@ -29,21 +31,24 @@ namespace dev
 
         virtual ~mouse();
 
+
     private:
 
         // Configuration
 
-        int key_move_L;
-        int key_move_R;
-        int key_move_D;
-        int key_move_U;
-        int key_move_F;
-        int key_move_B;
+        typedef std::vector<int> keyset;
 
-        int key_turn_L;
-        int key_turn_R;
-        int key_turn_D;
-        int key_turn_U;
+        keyset move_L;
+        keyset move_R;
+        keyset move_D;
+        keyset move_U;
+        keyset move_F;
+        keyset move_B;
+
+        keyset turn_L;
+        keyset turn_R;
+        keyset turn_D;
+        keyset turn_U;
 
         double filter;
         double speed;
@@ -52,19 +57,7 @@ namespace dev
         // Navigation state
 
         bool dragging;
-        int  modifier;
-
-        int move_L;
-        int move_R;
-        int move_D;
-        int move_U;
-        int move_F;
-        int move_B;
-
-        int turn_L;
-        int turn_R;
-        int turn_D;
-        int turn_U;
+        bool modified;
 
         quat last_q;
         quat curr_q;
@@ -81,6 +74,16 @@ namespace dev
         bool process_click(app::event *);
         bool process_tick (app::event *);
         bool process_key  (app::event *);
+
+        // Keyboard handling
+
+        void parse_keyset(      keyset&, const std::string&, int);
+        int  check_keyset(const keyset&) const;
+
+        // Keyboard states are given by SDL, but we must replicate them when
+        // performing distributed rendering.
+
+        bool keystate[SDL_NUM_SCANCODES];
     };
 }
 
