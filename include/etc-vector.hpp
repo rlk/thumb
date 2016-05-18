@@ -693,6 +693,11 @@ inline mat4 orthogonal(double l, double r,
 
 //------------------------------------------------------------------------------
 
+inline double hermite(double t)
+{
+    return 3.0 * t * t - 2.0 * t * t * t;
+}
+
 inline double mix(double a, double b, double t)
 {
     return a * (1.0 - t) + b * t;
