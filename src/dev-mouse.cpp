@@ -196,8 +196,10 @@ bool dev::mouse::process_key(app::event *E)
 
     if (0 <= E->data.key.k &&
              E->data.key.k < SDL_NUM_SCANCODES)
-
+    {
         keystate[E->data.key.k] = E->data.key.d;
+        return true;
+    }
 
     return false;
 }
