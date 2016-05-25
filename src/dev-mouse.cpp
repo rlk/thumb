@@ -12,7 +12,6 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <sstream>
 
 #include <SDL.h>
 #include <SDL_keyboard.h>
@@ -28,6 +27,18 @@
 //-----------------------------------------------------------------------------
 
 dev::mouse::mouse() :
+    move_L(::conf->get_s("key_move_L"), SDL_SCANCODE_A),
+    move_R(::conf->get_s("key_move_R"), SDL_SCANCODE_D),
+    move_D(::conf->get_s("key_move_D"), SDL_SCANCODE_F),
+    move_U(::conf->get_s("key_move_U"), SDL_SCANCODE_R),
+    move_F(::conf->get_s("key_move_F"), SDL_SCANCODE_W),
+    move_B(::conf->get_s("key_move_B"), SDL_SCANCODE_S),
+
+    turn_L(::conf->get_s("key_turn_L"), SDL_SCANCODE_Q),
+    turn_R(::conf->get_s("key_turn_R"), SDL_SCANCODE_E),
+    turn_D(::conf->get_s("key_turn_D"), SDL_SCANCODE_G),
+    turn_U(::conf->get_s("key_turn_U"), SDL_SCANCODE_T),
+
     filter(::conf->get_f("key_motion_filter", 0.9)),
     speed (::conf->get_f("key_motion_speed",  5.0)),
     mode  (::conf->get_i("key_motion_mode",   0)),
@@ -37,52 +48,10 @@ dev::mouse::mouse() :
     dyaw    (0),
     dpitch  (0)
 {
-    memset(keystate, 0, sizeof (keystate));
-
-    parse_keyset(move_L, ::conf->get_s("key_move_L"), SDL_SCANCODE_A);
-    parse_keyset(move_R, ::conf->get_s("key_move_R"), SDL_SCANCODE_D);
-    parse_keyset(move_D, ::conf->get_s("key_move_D"), SDL_SCANCODE_F);
-    parse_keyset(move_U, ::conf->get_s("key_move_U"), SDL_SCANCODE_R);
-    parse_keyset(move_F, ::conf->get_s("key_move_F"), SDL_SCANCODE_W);
-    parse_keyset(move_B, ::conf->get_s("key_move_B"), SDL_SCANCODE_S);
-
-    parse_keyset(turn_L, ::conf->get_s("key_turn_L"), SDL_SCANCODE_Q);
-    parse_keyset(turn_R, ::conf->get_s("key_turn_R"), SDL_SCANCODE_E);
-    parse_keyset(turn_D, ::conf->get_s("key_turn_D"), SDL_SCANCODE_G);
-    parse_keyset(turn_U, ::conf->get_s("key_turn_U"), SDL_SCANCODE_T);
 }
 
 dev::mouse::~mouse()
 {
-}
-
-//-----------------------------------------------------------------------------
-
-// Parse a comma-delimited list of numbers s, filling a vector of integers.
-
-void dev::mouse::parse_keyset(keyset& k, const std::string& s, int d)
-{
-    std::stringstream str(s);
-    std::string       val;
-
-    while (std::getline(str, val, ','))
-        if (int i = atoi(val.c_str()))
-            k.push_back(i);
-
-    if (k.empty()) k.push_back(d);
-}
-
-// Return 1 if any key in the given keyset is currently pressed.
-
-int dev::mouse::check_keyset(const keyset& k) const
-{
-    keyset::const_iterator it;
-
-    for (it = k.begin(); it != k.end(); ++it)
-        if (keystate[*it])
-            return 1;
-
-    return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -155,12 +124,12 @@ bool dev::mouse::process_tick(app::event *E)
 
     // Calculate position and orientation differentials.
 
-    const vec3 npos(check_keyset(move_R) - check_keyset(move_L),
-                  + check_keyset(move_U) - check_keyset(move_D),
-                  + check_keyset(move_B) - check_keyset(move_F));
+    const vec3 npos(move_R.check() - move_L.check(),
+                  + move_U.check() - move_D.check(),
+                  + move_B.check() - move_F.check());
 
-    const double nyaw   = check_keyset(turn_L) - check_keyset(turn_R);
-    const double npitch = check_keyset(turn_U) - check_keyset(turn_D);
+    const double nyaw   = turn_L.check() - turn_R.check();
+    const double npitch = turn_U.check() - turn_D.check();
 
     // Filter the input differentials.
 
@@ -192,16 +161,21 @@ bool dev::mouse::process_tick(app::event *E)
 
 bool dev::mouse::process_key(app::event *E)
 {
+    const int  k = E->data.key.k;
+    const bool d = E->data.key.d;
+
     modified = E->data.key.m & KMOD_SHIFT;
 
-    if (0 <= E->data.key.k &&
-             E->data.key.k < SDL_NUM_SCANCODES)
-    {
-        keystate[E->data.key.k] = E->data.key.d;
-        return true;
-    }
-
-    return false;
+    return (move_L.event(k, d)
+         || move_R.event(k, d)
+         || move_D.event(k, d)
+         || move_U.event(k, d)
+         || move_F.event(k, d)
+         || move_B.event(k, d)
+         || turn_L.event(k, d)
+         || turn_R.event(k, d)
+         || turn_D.event(k, d)
+         || turn_U.event(k, d));
 }
 
 bool dev::mouse::process_event(app::event *E)

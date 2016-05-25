@@ -13,6 +13,8 @@
 #ifndef DEV_MOUSE
 #define DEV_MOUSE
 
+#include <sstream>
+
 #include <SDL_keyboard.h>
 
 #include <dev-input.hpp>
@@ -21,6 +23,7 @@
 
 namespace dev
 {
+
     class mouse : public input
     {
     public:
@@ -34,9 +37,67 @@ namespace dev
 
     private:
 
-        // Configuration
+        // A set of keys and their current states
 
-        typedef std::vector<int> keyset;
+        class keyset {
+        public:
+
+            // Initialize a new keyset given a string of key codes.
+
+            keyset(const std::string& s, int d)
+            {
+                std::stringstream str(s);
+                std::string       val;
+
+                while (std::getline(str, val, ','))
+                    if (int k = atoi(val.c_str()))
+                        v.push_back(key(k, false));
+
+                if (v.empty()) v.push_back(key(d, false));
+            }
+
+            // Return 1 if any key in the keyset is currently pressed.
+
+            int check() const
+            {
+                std::vector<key>::const_iterator i;
+
+                for (i = v.begin(); i != v.end(); ++i)
+                    if (i->state)
+                        return 1;
+
+                return 0;
+            }
+
+            // Update the keyset given a key press or release event.
+
+            bool event(int code, bool state)
+            {
+                std::vector<key>::iterator i;
+
+                for (i = v.begin(); i != v.end(); ++i)
+                    if (i->code == code)
+                    {
+                        i->state = state;
+                        return true;
+                    }
+
+                return false;
+            }
+
+        private:
+
+            struct key
+            {
+                int  code;
+                bool state;
+                key(int c, bool s) : code(c), state(s) { }
+            };
+
+            std::vector<key> v;
+        };
+
+        // Configuration
 
         keyset move_L;
         keyset move_R;
@@ -79,11 +140,6 @@ namespace dev
 
         void parse_keyset(      keyset&, const std::string&, int);
         int  check_keyset(const keyset&) const;
-
-        // Keyboard states are given by SDL, but we must replicate them when
-        // performing distributed rendering.
-
-        bool keystate[SDL_NUM_SCANCODES];
     };
 }
 
