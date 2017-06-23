@@ -200,8 +200,7 @@ app::prog::prog(const std::string& exe,
 #ifdef WITH_SIXENSE
     else if (input_mode == "sixense")  input = new dev::sixense();
 #endif
-//  else if (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
-//  else if (input_mode == "trackd")   input = new dev::trackd();
+    else if (input_mode == "trackd")   input = new dev::trackd();
 //  else if (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
 
     mouse = new dev::mouse();

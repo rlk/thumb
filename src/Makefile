@@ -25,6 +25,7 @@ OBJS=	app-data.o \
 	dev-mouse.o \
 	dev-sixense.o \
 	dev-skeleton.o \
+	dev-trackd.o \
 	dpy-anaglyph.o \
 	dpy-channel.o \
 	dpy-direct.o \

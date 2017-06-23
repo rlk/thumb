@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2011 Robert Kooima
+//  Copyright (C) 2007-2011, 2017 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,12 +10,11 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DEV_TRACKD
-#define DEV_TRACKD
-
-#include <vector>
+#ifndef DEV_TRACKD_HPP
+#define DEV_TRACKD_HPP
 
 #include <dev-input.hpp>
+#include <etc-vector.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -25,36 +24,33 @@ namespace dev
     {
         // Configuration
 
-        double scale;
+	double scale;
         double move_rate;
         double turn_rate;
 
-        int tracker_head_sensor;
-        int tracker_hand_sensor;
+        int head_sensor;
+        int hand_sensor;
 
-        int tracker_butn_fly;
-        int tracker_butn_home;
-
-        int tracker_axis_A;
-        int tracker_axis_T;
+        int fly_button;
 
         // Navigation state
 
-        double init_P[3], init_R[16];
-        double curr_P[3], curr_R[16];
+        bool status;
+        bool flying;
 
-        bool   flying;
-        double joy_x;
-        double joy_y;
+        vec3 init_p;
+        vec3 curr_p;
+        quat init_q;
+        quat curr_q;
 
         // Event handlers
 
-        bool process_point(app::event *);
-        bool process_click(app::event *);
-        bool process_axis(app::event *);
-        bool process_tick(app::event *);
+        bool process_point (app::event *);
+        bool process_axis  (app::event *);
+        bool process_button(app::event *);
+        bool process_tick  (app::event *);
 
-        void translate() const;
+        void translate();
 
     public:
 
