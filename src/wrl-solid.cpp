@@ -199,6 +199,7 @@ dGeomID wrl::plane::new_play_geom(dSpaceID space) const
 
 dGeomID wrl::convex::new_play_geom(dSpaceID space) const
 {
+#if defined(dDOUBLE)
     if (data)
         return dCreateConvex(space, data->get_planes(),
                                     data->num_planes(),
@@ -206,6 +207,7 @@ dGeomID wrl::convex::new_play_geom(dSpaceID space) const
                                     data->num_points(),
                                     data->get_polygons());
     else
+#endif
         return 0;
 }
 

@@ -70,7 +70,7 @@ else
 	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH))) -lz)
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2main.a, $(LIBPATH))))
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
-	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))) -lglew)
+	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))) -lGLEW)
 	ifdef OSX
 		LIBS += $(firstword $(wildcard $(addsuffix libiconv.a, $(LIBPATH))) -liconv)
 	endif
