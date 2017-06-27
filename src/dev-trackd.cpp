@@ -361,7 +361,7 @@ void dev::trackd::translate()
 
         for (int b = 0; b < tracker_count_buttons(); ++b)
             if (tracker_button(b, d))
-                ::host->process_event(E.mk_click(b, 0, d));
+                ::host->process_event(E.mk_button(0, b, d));
 
         for (int a = 0; a < tracker_count_values (); ++a)
             if (tracker_value (a, v))
@@ -387,7 +387,7 @@ bool dev::trackd::process_point(app::event *E)
     const double *p = E->data.point.p;
     const double *q = E->data.point.q;
 
-    if (i == 1)
+    if (i == hand_sensor)
     {
         curr_p = vec3(p[0], p[1], p[2]);
         curr_q = quat(q[0], q[1], q[2], q[3]);
@@ -405,7 +405,6 @@ bool dev::trackd::process_axis(app::event *E)
 
 bool dev::trackd::process_button(app::event *E)
 {
-    const int  i = E->data.button.i;
     const int  b = E->data.button.b;
     const bool d = E->data.button.d;
 
