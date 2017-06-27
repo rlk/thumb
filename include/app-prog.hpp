@@ -85,6 +85,7 @@ namespace app
 
         std::string host_config;
         std::string exe;
+        std::string tag;
 
         bool running;
         bool restart;

@@ -144,7 +144,7 @@ void app::prog::video_dn()
 
 void app::prog::host_up(std::string config)
 {
-    ::host = new app::host(this, config, exe, "default");
+    ::host = new app::host(this, config, exe, tag);
 
     video_up();
 
@@ -169,7 +169,7 @@ void app::prog::host_dn()
 
 app::prog::prog(const std::string& exe,
                 const std::string& tag)
-    : exe(exe), running(false), restart(false), input(0), snap_p(0), snap_w(0), snap_h(0)
+    : exe(exe), tag(tag), running(false), restart(false), input(0), snap_p(0), snap_w(0), snap_h(0)
 {
     // Start Winsock
 

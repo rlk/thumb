@@ -94,6 +94,8 @@ app::host::host(app::prog *p, std::string filename,
 
         // Locate the configuration for this node.
 
+        etc::log("Starting %s", tag.c_str());
+
         if (app::node n = p.find("node", "name", tag.c_str()))
         {
             // Extract the on-screen window configuration.
@@ -403,6 +405,8 @@ void app::host::init_server(app::node p)
         if (name.empty()) name = DEFAULT_HOST;
         if (port == 0)    port = DEFAULT_PORT;
 
+        etc::log("Connecting to %s %d", name.c_str(), port);
+
         // Look up the given host name.
 
         if (init_sockaddr(address, name.c_str(), port))
@@ -477,7 +481,7 @@ void app::host::fork_client(const char *name,
                             const char *exe)
 {
 #ifndef _WIN32 // W32 HACK
-    const char *cmd = "/bin/sh -c 'cd %s; DISPLAY=%s %s %s'";
+    const char *cmd = "/bin/bash -c 'cd %s; DISPLAY=%s %s -t %s'";
 
     char *cwd = getenv("PWD");
 
