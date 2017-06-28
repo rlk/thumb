@@ -241,9 +241,11 @@ static bool tracker_sensor(int id, double p[3], double q[4])
                        * xrotation(to_radians(double(S->r[1])))
                        * zrotation(to_radians(double(S->r[2])));
 
-                quat r(mat3(xvector(M),
-                            yvector(M),
-                            zvector(M)));
+                vec3 x = xvector(M);
+                vec3 y = yvector(M);
+                vec3 z = zvector(M);
+
+                quat r(mat3(x, y, z));
 
                 q[0] = r[0];
                 q[1] = r[1];
@@ -334,10 +336,11 @@ dev::trackd::trackd() :
 
     if (tracker_init(tracker_key, control_key))
     {
-        etc::log("tracking %d sensors %d values %d buttons",
+        etc::log("tracking %d sensors %d values %d buttons %s",
                   tracker_count_sensors(),
                   tracker_count_values(),
-                  tracker_count_buttons());
+                  tracker_count_buttons(),
+                  tracker_status() ? "ON" : "OFF");
     }
 }
 
@@ -387,10 +390,15 @@ bool dev::trackd::process_point(app::event *E)
     const double *p = E->data.point.p;
     const double *q = E->data.point.q;
 
+    if (i == head_sensor)
+    {
+        curr_head_p = vec3(p[0], p[1], p[2]);
+        curr_head_q = quat(q[0], q[1], q[2], q[3]);
+    }
     if (i == hand_sensor)
     {
-        curr_p = vec3(p[0], p[1], p[2]);
-        curr_q = quat(q[0], q[1], q[2], q[3]);
+        curr_hand_p = vec3(p[0], p[1], p[2]);
+        curr_hand_q = quat(q[0], q[1], q[2], q[3]);
     }
     return false;
 }
@@ -411,8 +419,8 @@ bool dev::trackd::process_button(app::event *E)
     if (b == fly_button)
     {
         flying = d;
-        init_p = curr_p;
-        init_q = curr_q;
+        init_hand_p = curr_hand_p;
+        init_hand_q = curr_hand_q;
 
         return true;
     }
@@ -429,13 +437,14 @@ bool dev::trackd::process_tick(app::event *E)
     if (flying)
     {
         quat o = ::host->get_orientation();
-        quat q = normal(inverse(init_q) * curr_q);
+        quat q = normal(inverse(init_hand_q) * curr_hand_q);
         quat r = normal(slerp(quat(), q, 1.0 / 30.0));
-        vec3 d = (curr_p - init_p) * dt * move_rate;
+        vec3 d = (curr_hand_p - init_hand_p) * dt * move_rate;
 
         ::host->set_orientation(o * r);
         ::host->offset_position(o * d);
     }
+    ::host->set_head(curr_head_p, curr_head_q);
 
     return false;
 }

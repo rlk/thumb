@@ -38,10 +38,14 @@ namespace dev
         bool status;
         bool flying;
 
-        vec3 init_p;
-        vec3 curr_p;
-        quat init_q;
-        quat curr_q;
+        vec3 curr_head_p;
+        quat curr_head_q;
+
+        vec3 curr_hand_p;
+        quat curr_hand_q;
+
+        vec3 init_hand_p;
+        quat init_hand_q;
 
         // Event handlers
 
