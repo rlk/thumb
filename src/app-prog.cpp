@@ -201,7 +201,6 @@ app::prog::prog(const std::string& exe,
     else if (input_mode == "sixense")  input = new dev::sixense();
 #endif
     else if (input_mode == "trackd")   input = new dev::trackd();
-//  else if (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
 
     mouse = new dev::mouse();
 
@@ -270,8 +269,8 @@ bool app::prog::process_event(app::event *E)
 {
     // Give the input device an opportunity to translate the event.
 
-    if (input && input->process_event(E)) return true;
-    if (mouse && mouse->process_event(E)) return true;
+    if ( input          && input->process_event(E)) return true;
+    if (!input && mouse && mouse->process_event(E)) return true;
 
     // Otherwise, handle the global key bindings.
 
