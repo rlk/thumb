@@ -481,17 +481,20 @@ void app::host::fork_client(const char *name,
                             const char *exe)
 {
 #ifndef _WIN32 // W32 HACK
-    const char *cmd = "/bin/bash -c 'cd %s; DISPLAY=%s %s -t %s'";
+    const char *cmd = "cd %s; %s -t %s";
 
     char *cwd = getenv("PWD");
 
     char str[256];
 
+    sprintf(str, cmd, cwd, exe, name);
+
+#if 0
     if (disp && strlen(disp))
         sprintf(str, cmd, cwd,   disp, exe, name);
     else
         sprintf(str, cmd, cwd, ":0.0", exe, name);
-
+#endif
     fprintf(stderr, "%s\n", str);
 
     // Fork and build the client's ssh command line.
