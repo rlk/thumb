@@ -125,7 +125,7 @@ void dpy::interlace::test(int chanc, const dpy::channel *const *chanv, int index
         assert(chanv[1]);
         assert(program);
 
-        // Draw the scene to the off-screen buffer.
+        // Draw the test pattern to the off-screen buffer.
 
         chanv[0]->bind();
         {
@@ -135,7 +135,7 @@ void dpy::interlace::test(int chanc, const dpy::channel *const *chanv, int index
 
         chanv[1]->bind();
         {
-            chanv[0]->test();
+            chanv[1]->test();
         }
         chanv[1]->free();
 
@@ -179,7 +179,7 @@ bool dpy::interlace::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((program = ::glob->load_program("interlace.xml")))
+    if ((program = ::glob->load_program("dpy/interlace.xml")))
     {
     }
 
