@@ -326,7 +326,7 @@ dev::trackd::trackd() :
 {
     scale       = ::conf->get_f("trackd_scale",       1.0);
     move_rate   = ::conf->get_f("trackd_move_rate",  30.0);
-    turn_rate   = ::conf->get_f("trackd_turn_rate", 120.0);
+    turn_rate   = ::conf->get_f("trackd_turn_rate",  30.0);
     head_sensor = ::conf->get_i("trackd_head_sensor", 0);
     hand_sensor = ::conf->get_i("trackd_hand_sensor", 1);
     fly_button  = ::conf->get_i("trackd_fly_button",  0);
@@ -438,7 +438,7 @@ bool dev::trackd::process_tick(app::event *E)
     {
         quat o = ::host->get_orientation();
         quat q = normal(inverse(init_hand_q) * curr_hand_q);
-        quat r = normal(slerp(quat(), q, 1.0 / 30.0));
+        quat r = normal(slerp(quat(), q, 1.0 / turn_rate));
         vec3 d = (curr_hand_p - init_hand_p) * dt * move_rate;
 
         ::host->set_orientation(o * r);
