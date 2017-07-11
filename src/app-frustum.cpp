@@ -175,8 +175,6 @@ bool app::frustum::pointer_to_3D(event *E, double s, double t) const
 
 bool app::frustum::pointer_to_2D(event *E, double &s, double &t) const
 {
-    const mat4 A = get_transform();
-
     // Extract the pointer position and direction.
 
     vec3 p(E->data.point.p[0],
@@ -187,6 +185,23 @@ bool app::frustum::pointer_to_2D(event *E, double &s, double &t) const
            E->data.point.q[2],
            E->data.point.q[3]);
     vec3 v = -zvector(mat3(q));
+
+#if 1
+    vec4 a(corner[0], corner[1], corner[2]);
+    vec3 n(a[0], a[1], a[2]);
+
+    double d = (-a[3] - p * n) / (v * n);
+
+    vec3 x = normal(corner[1] - corner[0]);
+    vec3 y = normal(corner[2] - corner[0]);
+    vec3 b = (p + v * d) - corner[0];
+
+    s = x * b / length(corner[1] - corner[0]);
+    t = y * b / length(corner[2] - corner[0]);
+
+    return true;
+#else
+    const mat4 A = get_transform();
 
     // Transform these into normalized device coordinates.
 
@@ -207,6 +222,7 @@ bool app::frustum::pointer_to_2D(event *E, double &s, double &t) const
         return true;
     }
     return false;
+#endif
 }
 
 //-----------------------------------------------------------------------------
