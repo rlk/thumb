@@ -34,6 +34,7 @@ OBJS=	app-data.o \
 	dpy-interlace.o \
 	dpy-lenticular.o \
 	dpy-normal.o \
+	dpy-null.o \
 	dpy-oculus.o \
 	etc-dir.o \
 	etc-log.o \

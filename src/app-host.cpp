@@ -30,6 +30,7 @@
 #include <dpy-interlace.hpp>
 #include <dpy-lenticular.hpp>
 #include <dpy-normal.hpp>
+#include <dpy-null.hpp>
 #include <dpy-oculus.hpp>
 
 #include <app-default.hpp>
@@ -155,6 +156,8 @@ app::host::host(app::prog *p, std::string filename,
                     displays.push_back(new dpy::lenticular(c));
                 else if (t == "normal")
                     displays.push_back(new dpy::normal    (c));
+                else if (t == "null")
+                    displays.push_back(new dpy::null      (c));
 #ifdef CONFIG_OCULUS
                 else if (t == "oculus")
                     displays.push_back(new dpy::oculus(c, window_rect, buffer_size));
