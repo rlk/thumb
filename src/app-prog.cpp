@@ -196,13 +196,12 @@ app::prog::prog(const std::string& exe,
     std::string input_mode = ::conf->get_s("input_mode");
 
     if      (input_mode == "gamepad")  input = new dev::gamepad();
+    else if (input_mode == "mouse")    input = new dev::mouse();
     else if (input_mode == "skeleton") input = new dev::skeleton();
 #ifdef WITH_SIXENSE
     else if (input_mode == "sixense")  input = new dev::sixense();
 #endif
     else if (input_mode == "trackd")   input = new dev::trackd();
-
-    mouse = new dev::mouse();
 
     // Initialize language and host configuration.
 
@@ -235,7 +234,6 @@ app::prog::~prog()
 
     delete snap_p;
 
-    if (mouse)  delete mouse;
     if (input)  delete input;
 
     if (::perf) delete ::perf;
@@ -269,8 +267,7 @@ bool app::prog::process_event(app::event *E)
 {
     // Give the input device an opportunity to translate the event.
 
-    if ( input          && input->process_event(E)) return true;
-    if (!input && mouse && mouse->process_event(E)) return true;
+    if (input && input->process_event(E)) return true;
 
     // Otherwise, handle the global key bindings.
 
